@@ -76,7 +76,7 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
             <RadioGroup
               name="managementNumberType"
               options={managementNumberOptions}
-              value={composition.managementNumberType || 'cosmax'}
+              value={composition.managementNumberType}
               onChange={(value) => onChange({ managementNumberType: value })}
             />
             
@@ -199,20 +199,6 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
         </div>
       )}
 
-      {/* 체크 순서 미리보기 */}
-      {checkedItems.length > 0 && (
-        <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-          <p className="text-sm text-green-800 font-medium mb-1">착인 순서 미리보기:</p>
-          <div className="text-sm text-green-700">
-            {checkedItems.map((item, index) => (
-              <span key={item}>
-                {index + 1}번째 줄: {item}
-                {index < checkedItems.length - 1 && <br />}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

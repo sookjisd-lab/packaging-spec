@@ -209,7 +209,7 @@ export const PreviewSection: React.FC = () => {
               <tbody>
                 <tr className="border-b border-gray-200">
                   <td className="py-1 text-gray-600 w-1/4">라벨 양식</td>
-                  <td className="py-1">{LABEL_FORMAT_TYPE_LABELS[form.formatType]}</td>
+                  <td className="py-1">{form.formatType ? LABEL_FORMAT_TYPE_LABELS[form.formatType] : '미선택'}</td>
                 </tr>
                 <tr className="border-b border-gray-200">
                   <td className="py-1 text-gray-600">부착 위치</td>
@@ -243,7 +243,7 @@ export const PreviewSection: React.FC = () => {
             <tbody>
               <tr className="border-b border-purple-200">
                 <td className="py-1 text-purple-700 w-1/4">라벨 양식</td>
-                <td className="py-1">{LABEL_FORMAT_TYPE_LABELS[paletteLabel.formatType]}</td>
+                <td className="py-1">{paletteLabel.formatType ? LABEL_FORMAT_TYPE_LABELS[paletteLabel.formatType] : '미선택'}</td>
               </tr>
               <tr className="border-b border-purple-200">
                 <td className="py-1 text-purple-700">부착 위치</td>

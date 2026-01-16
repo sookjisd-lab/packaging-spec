@@ -237,32 +237,42 @@ export const PaletteLabelForm: React.FC<PaletteLabelFormProps> = ({
           </FormGroup>
         )}
 
-        {/* 라벨 부착 위치 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormGroup label="라벨 부착 위치">
-            <Dropdown
-              options={attachPositionOptions}
-              value={data.attachPosition}
-              onChange={(value) => onUpdate({ attachPosition: value })}
-              showOtherInput
-              otherValue={data.attachPositionOther}
-              onOtherChange={(value) => onUpdate({ attachPositionOther: value })}
-              otherPlaceholder="위치 직접 입력"
-            />
-          </FormGroup>
+        {/* 라벨 부착 위치 (없음이 아닐 때만 표시) */}
+        {data.formatType && data.formatType !== 'none' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormGroup label="라벨 부착 위치">
+              <Dropdown
+                options={attachPositionOptions}
+                value={data.attachPosition}
+                onChange={(value) => onUpdate({ attachPosition: value })}
+                showOtherInput
+                otherValue={data.attachPositionOther}
+                onOtherChange={(value) => onUpdate({ attachPositionOther: value })}
+                otherPlaceholder="위치 직접 입력"
+              />
+            </FormGroup>
 
-          <FormGroup label="라벨 부착 수량">
-            <Dropdown
-              options={attachCountOptions}
-              value={data.attachCount}
-              onChange={(value) => onUpdate({ attachCount: value })}
-              showOtherInput
-              otherValue={data.attachCountOther}
-              onOtherChange={(value) => onUpdate({ attachCountOther: value })}
-              otherPlaceholder="수량 직접 입력"
-            />
-          </FormGroup>
-        </div>
+            <FormGroup label="라벨 부착 수량">
+              <Dropdown
+                options={attachCountOptions}
+                value={data.attachCount}
+                onChange={(value) => onUpdate({ attachCount: value })}
+                showOtherInput
+                otherValue={data.attachCountOther}
+                onOtherChange={(value) => onUpdate({ attachCountOther: value })}
+                otherPlaceholder="수량 직접 입력"
+              />
+            </FormGroup>
+          </div>
+        )}
+
+        {/* 없음 선택 시 안내 문구 */}
+        {data.formatType === 'none' && (
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-gray-700 font-medium">라벨 부착 필요 없음</p>
+            <p className="text-sm text-gray-500 mt-1">팔레트에는 라벨을 부착하지 않습니다.</p>
+          </div>
+        )}
       </div>
     </div>
   );

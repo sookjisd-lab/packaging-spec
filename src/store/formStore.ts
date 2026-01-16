@@ -43,7 +43,7 @@ const createDefaultCustomLabelItem = (): CustomLabelItem => ({
 });
 
 const createDefaultPaletteLabel = (): PaletteLabelData => ({
-  formatType: 'wms',
+  formatType: undefined,
   attachPosition: 'shortSide',
   attachCount: 'single',
 });
@@ -316,7 +316,7 @@ export const useFormStore = create<FormState>()(
           id: generateId(),
           packagingMaterialType: material.type,
           packagingMaterialName: material.customName || material.type,
-          formatType: 'wms',
+          formatType: undefined,
           attachPosition: 'shortSide',
           attachCount: 'single',
           hasTaping: material.type !== 'zipperBag',

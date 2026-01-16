@@ -139,7 +139,7 @@ export const exportToExcel = async (data: PackagingSpecificationData): Promise<v
   data.labelForms.forEach(form => {
     labelData.push([
       form.packagingMaterialType === 'other' ? form.packagingMaterialName : PACKAGING_MATERIAL_LABELS[form.packagingMaterialType],
-      LABEL_FORMAT_TYPE_LABELS[form.formatType],
+      form.formatType ? LABEL_FORMAT_TYPE_LABELS[form.formatType] : '미선택',
       form.attachPosition === 'other' ? form.attachPositionOther || '기타' : LABEL_POSITION_LABELS[form.attachPosition],
       form.attachCount === 'other' ? form.attachCountOther || '기타' : LABEL_COUNT_LABELS[form.attachCount],
       form.hasTaping && form.tapingType ? (form.tapingType === 'other' ? (form.tapingOther || '기타') : BOX_TAPING_LABELS[form.tapingType]) : '-',
@@ -151,7 +151,7 @@ export const exportToExcel = async (data: PackagingSpecificationData): Promise<v
   labelData.push(['팔레트 라벨']);
   labelData.push([
     '팔레트',
-    LABEL_FORMAT_TYPE_LABELS[data.paletteLabel.formatType],
+    data.paletteLabel.formatType ? LABEL_FORMAT_TYPE_LABELS[data.paletteLabel.formatType] : '미선택',
     data.paletteLabel.attachPosition === 'other' ? data.paletteLabel.attachPositionOther || '기타' : LABEL_POSITION_LABELS[data.paletteLabel.attachPosition],
     data.paletteLabel.attachCount === 'other' ? data.paletteLabel.attachCountOther || '기타' : LABEL_COUNT_LABELS[data.paletteLabel.attachCount],
     '-',

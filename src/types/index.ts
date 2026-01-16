@@ -164,7 +164,7 @@ export interface LabelFormData {
   packagingMaterialName: string; // 표시용 이름
   
   // 라벨 양식
-  formatType: LabelFormatType;
+  formatType?: LabelFormatType;
   separateFormatImage?: string; // 별도양식 이미지
   customLabelItems?: CustomLabelItem;
   
@@ -182,7 +182,7 @@ export interface LabelFormData {
 
 /** 팔레트 라벨 데이터 */
 export interface PaletteLabelData {
-  formatType: LabelFormatType;
+  formatType?: LabelFormatType;
   separateFormatImage?: string;
   customLabelItems?: CustomLabelItem;
   attachPosition: LabelAttachPosition;

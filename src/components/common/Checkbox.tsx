@@ -74,7 +74,7 @@ export function CheckboxGroup<T extends string = string>({
 interface RadioGroupProps<T extends string = string> {
   name: string;
   options: Array<{ value: T; label: string }>;
-  value: T;
+  value: T | undefined;
   onChange: (value: T) => void;
   disabled?: boolean;
   className?: string;

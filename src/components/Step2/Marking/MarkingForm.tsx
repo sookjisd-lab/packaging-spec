@@ -33,11 +33,22 @@ const getTargetTypeLabel = (type: MarkingFormData['targetType']): string => {
   }
 };
 
+const getCheckedItems = (composition: MarkingComposition): string[] => {
+  const checkedItems: string[] = [];
+  if (composition.hasManagementNumber) checkedItems.push('관리번호');
+  if (composition.hasExpiryDate) checkedItems.push('사용기한');
+  if (composition.hasManufactureDate) checkedItems.push('제조일자');
+  if (composition.hasOther) checkedItems.push('기타');
+  return checkedItems;
+};
+
 export const MarkingForm: React.FC<MarkingFormProps> = ({
   data,
   onUpdate,
   onUpdateComposition,
 }) => {
+  const checkedItems = getCheckedItems(data.composition);
+
   return (
     <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
       {/* 헤더 */}
@@ -84,6 +95,20 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
               label="위치 이미지"
             />
           </FormGroup>
+
+          {checkedItems.length > 0 && (
+            <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-800 font-medium mb-1">착인 순서 미리보기:</p>
+              <div className="text-sm text-green-700">
+                {checkedItems.map((item, index) => (
+                  <span key={item}>
+                    {index + 1}번째 줄: {item}
+                    {index < checkedItems.length - 1 && <br />}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 우측: 착인 구성 */}
