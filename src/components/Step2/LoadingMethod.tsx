@@ -34,7 +34,7 @@ export const LoadingMethod: React.FC = () => {
           <h4 className="font-medium text-gray-800 mb-4">적재 설명</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormGroup label="1단에 박스수">
+            <FormGroup label="1단에 박스수" required={false}>
               <NumberInput
                 value={loadingMethod.boxesPerLayer}
                 onChange={(value) => updateLoadingMethod({ boxesPerLayer: value })}
@@ -45,7 +45,7 @@ export const LoadingMethod: React.FC = () => {
               />
             </FormGroup>
 
-            <FormGroup label="단수">
+            <FormGroup label="단수" required={false}>
               <NumberInput
                 value={loadingMethod.layerCount}
                 onChange={(value) => updateLoadingMethod({ layerCount: value })}
@@ -56,7 +56,7 @@ export const LoadingMethod: React.FC = () => {
               />
             </FormGroup>
 
-            <FormGroup label="최대높이 (팔레트포함)">
+            <FormGroup label="최대높이 (팔레트포함)" required={false}>
               <NumberInput
                 value={loadingMethod.maxHeight}
                 onChange={(value) => updateLoadingMethod({ maxHeight: value })}
