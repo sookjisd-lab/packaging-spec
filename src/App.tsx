@@ -1,8 +1,16 @@
 import React from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
 import { useFormStore } from './store/formStore';
+import { useAuth } from './hooks/useAuth';
 import { Step1TypeSelection } from './components/Step1';
 import { Step2ContentInput } from './components/Step2';
 import { Step3Preview } from './components/Step3';
+import { LoginPage } from './pages/LoginPage';
+import { PendingPage } from './pages/PendingPage';
+import { AdminPage } from './pages/AdminPage';
+import { AuthCallback } from './components/auth/AuthCallback';
+import { ProtectedRoute, ActiveUserRoute, AdminRoute } from './components/auth/ProtectedRoute';
+import { LogoutButton } from './components/auth/LogoutButton';
 
 const StepIndicator: React.FC = () => {
   const { currentStep, setCurrentStep } = useFormStore();
@@ -19,7 +27,6 @@ const StepIndicator: React.FC = () => {
         <React.Fragment key={step.number}>
           <button
             onClick={() => {
-              // 이전 단계로만 이동 가능
               if (step.number < currentStep) {
                 setCurrentStep(step.number as 1 | 2 | 3);
               }
@@ -67,24 +74,40 @@ const StepIndicator: React.FC = () => {
   );
 };
 
-const App: React.FC = () => {
+const SpecFormPage: React.FC = () => {
   const { currentStep } = useFormStore();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
       <header className="bg-white shadow-sm no-print">
-        <div className="max-w-5xl mx-auto px-4 py-4">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             신제품 포장사양서 작성
           </h1>
+          <div className="flex items-center gap-4">
+            {user?.role === 'admin' && (
+              <Link
+                to="/admin"
+                className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                사용자 관리
+              </Link>
+            )}
+            <span className="text-sm text-gray-600">
+              {user?.name || user?.email}
+            </span>
+            <LogoutButton />
+          </div>
         </div>
       </header>
 
-      {/* 메인 컨텐츠 */}
       <main className="max-w-5xl mx-auto px-4 py-8">
         <StepIndicator />
         
@@ -95,13 +118,33 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* 푸터 */}
       <footer className="bg-white border-t border-gray-200 mt-auto no-print">
         <div className="max-w-5xl mx-auto px-4 py-4 text-center text-sm text-gray-500">
           포장사양서 작성 시스템 &copy; {new Date().getFullYear()}
         </div>
       </footer>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      
+      <Route element={<ProtectedRoute />}>
+        <Route path="/pending" element={<PendingPage />} />
+        
+        <Route element={<ActiveUserRoute />}>
+          <Route path="/" element={<SpecFormPage />} />
+          
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
+        </Route>
+      </Route>
+    </Routes>
   );
 };
 
