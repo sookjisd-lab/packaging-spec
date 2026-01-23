@@ -88,20 +88,24 @@ export interface MarkingComposition {
   managementNumberType?: ManagementNumberType;
   cosmaxNumberFormat?: CosmaxNumberFormat;
   clientNumberDescription?: string;
+  managementNumberLine?: number; // 몇 번째 줄인지
   
   // 사용기한
   hasExpiryDate: boolean;
   expiryDateFormat?: ExpiryDateFormat;
   expiryDateCustom?: string;
+  expiryDateLine?: number; // 몇 번째 줄인지
   
   // 제조일자
   hasManufactureDate: boolean;
   manufactureDateFormat?: ManufactureDateFormat;
   manufactureDateCustom?: string;
+  manufactureDateLine?: number; // 몇 번째 줄인지
   
   // 기타
   hasOther: boolean;
   otherDescription?: string;
+  otherLine?: number; // 몇 번째 줄인지
   
   // 사용기한/제조일자 선택 시 추가 항목
   expiryBasis?: ExpiryBasis;

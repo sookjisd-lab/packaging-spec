@@ -50,26 +50,44 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
 }) => {
   const showExpiryOptions = composition.hasExpiryDate || composition.hasManufactureDate;
 
-  // 체크 순서에 따른 표시를 위한 배열 생성
-  const checkedItems: string[] = [];
-  if (composition.hasManagementNumber) checkedItems.push('관리번호');
-  if (composition.hasExpiryDate) checkedItems.push('사용기한');
-  if (composition.hasManufactureDate) checkedItems.push('제조일자');
-  if (composition.hasOther) checkedItems.push('기타');
+  const checkedCount = [
+    composition.hasManagementNumber,
+    composition.hasExpiryDate,
+    composition.hasManufactureDate,
+    composition.hasOther,
+  ].filter(Boolean).length;
+
+  const lineOptions = Array.from({ length: checkedCount }, (_, i) => ({
+    value: i + 1,
+    label: `${i + 1}번째 줄`,
+  }));
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-gray-600 mb-2">
-        착인 구성 항목 (체크 순서대로 첫번째줄, 두번째줄 순으로 표시됩니다)
+        착인 구성 항목을 선택하고, 각 항목이 몇 번째 줄에 표시될지 설정하세요.
       </p>
 
       {/* 관리번호 */}
       <div className="p-3 bg-gray-50 rounded-lg">
-        <Checkbox
-          label="관리번호"
-          checked={composition.hasManagementNumber}
-          onChange={(checked) => onChange({ hasManagementNumber: checked })}
-        />
+        <div className="flex items-center justify-between">
+          <Checkbox
+            label="관리번호"
+            checked={composition.hasManagementNumber}
+            onChange={(checked) => onChange({ hasManagementNumber: checked })}
+          />
+          {composition.hasManagementNumber && checkedCount > 0 && (
+            <select
+              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              value={composition.managementNumberLine || 1}
+              onChange={(e) => onChange({ managementNumberLine: Number(e.target.value) })}
+            >
+              {lineOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          )}
+        </div>
         
         {composition.hasManagementNumber && (
           <div className="mt-3 ml-6 space-y-3">
@@ -108,11 +126,24 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
 
       {/* 사용기한 */}
       <div className="p-3 bg-gray-50 rounded-lg">
-        <Checkbox
-          label="사용기한"
-          checked={composition.hasExpiryDate}
-          onChange={(checked) => onChange({ hasExpiryDate: checked })}
-        />
+        <div className="flex items-center justify-between">
+          <Checkbox
+            label="사용기한"
+            checked={composition.hasExpiryDate}
+            onChange={(checked) => onChange({ hasExpiryDate: checked })}
+          />
+          {composition.hasExpiryDate && checkedCount > 0 && (
+            <select
+              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              value={composition.expiryDateLine || 1}
+              onChange={(e) => onChange({ expiryDateLine: Number(e.target.value) })}
+            >
+              {lineOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          )}
+        </div>
         
         {composition.hasExpiryDate && (
           <div className="mt-3 ml-6">
@@ -132,11 +163,24 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
 
       {/* 제조일자 */}
       <div className="p-3 bg-gray-50 rounded-lg">
-        <Checkbox
-          label="제조일자"
-          checked={composition.hasManufactureDate}
-          onChange={(checked) => onChange({ hasManufactureDate: checked })}
-        />
+        <div className="flex items-center justify-between">
+          <Checkbox
+            label="제조일자"
+            checked={composition.hasManufactureDate}
+            onChange={(checked) => onChange({ hasManufactureDate: checked })}
+          />
+          {composition.hasManufactureDate && checkedCount > 0 && (
+            <select
+              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              value={composition.manufactureDateLine || 1}
+              onChange={(e) => onChange({ manufactureDateLine: Number(e.target.value) })}
+            >
+              {lineOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          )}
+        </div>
         
         {composition.hasManufactureDate && (
           <div className="mt-3 ml-6">
@@ -156,11 +200,24 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
 
       {/* 기타 */}
       <div className="p-3 bg-gray-50 rounded-lg">
-        <Checkbox
-          label="기타"
-          checked={composition.hasOther}
-          onChange={(checked) => onChange({ hasOther: checked })}
-        />
+        <div className="flex items-center justify-between">
+          <Checkbox
+            label="기타"
+            checked={composition.hasOther}
+            onChange={(checked) => onChange({ hasOther: checked })}
+          />
+          {composition.hasOther && checkedCount > 0 && (
+            <select
+              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              value={composition.otherLine || 1}
+              onChange={(e) => onChange({ otherLine: Number(e.target.value) })}
+            >
+              {lineOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          )}
+        </div>
         
         {composition.hasOther && (
           <div className="mt-3 ml-6">

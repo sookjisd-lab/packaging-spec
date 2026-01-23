@@ -131,7 +131,7 @@ export const PreviewSection: React.FC = () => {
                 </tr>
                 {form.composition.hasManagementNumber && (
                   <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">관리번호</td>
+                    <td className="py-1 text-gray-600">관리번호 ({form.composition.managementNumberLine || 1}번째 줄)</td>
                     <td className="py-1">
                       {form.composition.managementNumberType === 'cosmax' 
                         ? `코스맥스관리번호 (${form.composition.cosmaxNumberFormat})`
@@ -141,7 +141,7 @@ export const PreviewSection: React.FC = () => {
                 )}
                 {form.composition.hasExpiryDate && (
                   <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">사용기한</td>
+                    <td className="py-1 text-gray-600">사용기한 ({form.composition.expiryDateLine || 1}번째 줄)</td>
                     <td className="py-1">
                       {form.composition.expiryDateFormat === 'other' 
                         ? form.composition.expiryDateCustom 
@@ -151,7 +151,7 @@ export const PreviewSection: React.FC = () => {
                 )}
                 {form.composition.hasManufactureDate && (
                   <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">제조일자</td>
+                    <td className="py-1 text-gray-600">제조일자 ({form.composition.manufactureDateLine || 1}번째 줄)</td>
                     <td className="py-1">
                       {form.composition.manufactureDateFormat === 'other' 
                         ? form.composition.manufactureDateCustom 
@@ -161,7 +161,7 @@ export const PreviewSection: React.FC = () => {
                 )}
                 {form.composition.hasOther && (
                   <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">기타</td>
+                    <td className="py-1 text-gray-600">기타 ({form.composition.otherLine || 1}번째 줄)</td>
                     <td className="py-1">{form.composition.otherDescription}</td>
                   </tr>
                 )}
