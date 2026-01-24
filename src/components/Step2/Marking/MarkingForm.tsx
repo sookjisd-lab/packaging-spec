@@ -147,7 +147,7 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
           {/* 착인 순서 미리보기 */}
           {previewLines.length > 0 && (
             <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-sm text-green-800 font-medium mb-2">착인 순서 미리보기:</p>
+              <p className="text-sm text-green-800 font-medium mb-2">착인 양식 미리보기:</p>
               <div className="font-mono text-sm text-green-700 bg-white p-2 rounded border border-green-100">
                 {previewLines.map((line, index) => (
                   <div key={index}>{line}</div>

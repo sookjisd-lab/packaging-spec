@@ -74,7 +74,13 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
           <Checkbox
             label="관리번호"
             checked={composition.hasManagementNumber}
-            onChange={(checked) => onChange({ hasManagementNumber: checked })}
+            onChange={(checked) => {
+              if (checked) {
+                onChange({ hasManagementNumber: true, managementNumberLine: checkedCount + 1 });
+              } else {
+                onChange({ hasManagementNumber: false });
+              }
+            }}
           />
           {composition.hasManagementNumber && checkedCount > 0 && (
             <select
@@ -130,7 +136,13 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
           <Checkbox
             label="사용기한"
             checked={composition.hasExpiryDate}
-            onChange={(checked) => onChange({ hasExpiryDate: checked })}
+            onChange={(checked) => {
+              if (checked) {
+                onChange({ hasExpiryDate: true, expiryDateLine: checkedCount + 1 });
+              } else {
+                onChange({ hasExpiryDate: false });
+              }
+            }}
           />
           {composition.hasExpiryDate && checkedCount > 0 && (
             <select
@@ -167,7 +179,13 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
           <Checkbox
             label="제조일자"
             checked={composition.hasManufactureDate}
-            onChange={(checked) => onChange({ hasManufactureDate: checked })}
+            onChange={(checked) => {
+              if (checked) {
+                onChange({ hasManufactureDate: true, manufactureDateLine: checkedCount + 1 });
+              } else {
+                onChange({ hasManufactureDate: false });
+              }
+            }}
           />
           {composition.hasManufactureDate && checkedCount > 0 && (
             <select
@@ -204,7 +222,13 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
           <Checkbox
             label="기타"
             checked={composition.hasOther}
-            onChange={(checked) => onChange({ hasOther: checked })}
+            onChange={(checked) => {
+              if (checked) {
+                onChange({ hasOther: true, otherLine: checkedCount + 1 });
+              } else {
+                onChange({ hasOther: false });
+              }
+            }}
           />
           {composition.hasOther && checkedCount > 0 && (
             <select
