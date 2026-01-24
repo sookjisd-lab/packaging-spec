@@ -2,7 +2,12 @@ import React from 'react';
 import { FormGroup, Dropdown, SingleImageUpload } from '../../common';
 import { MarkingCompositionForm } from './MarkingCompositionForm';
 import type { MarkingFormData, MarkingMethod, MarkingPosition, MarkingComposition } from '../../../types';
-import { MARKING_METHOD_LABELS, MARKING_POSITION_LABELS } from '../../../types';
+import { 
+  MARKING_METHOD_LABELS, 
+  MARKING_POSITION_LABELS,
+  EXPIRY_DATE_FORMAT_LABELS,
+  MANUFACTURE_DATE_FORMAT_LABELS,
+} from '../../../types';
 
 interface MarkingFormProps {
   data: MarkingFormData;
@@ -33,13 +38,56 @@ const getTargetTypeLabel = (type: MarkingFormData['targetType']): string => {
   }
 };
 
-const getCheckedItems = (composition: MarkingComposition): string[] => {
-  const checkedItems: string[] = [];
-  if (composition.hasManagementNumber) checkedItems.push('관리번호');
-  if (composition.hasExpiryDate) checkedItems.push('사용기한');
-  if (composition.hasManufactureDate) checkedItems.push('제조일자');
-  if (composition.hasOther) checkedItems.push('기타');
-  return checkedItems;
+const getMarkingPreviewLines = (composition: MarkingComposition): string[] => {
+  const items: { line: number; format: string }[] = [];
+  
+  if (composition.hasManagementNumber) {
+    let format = '';
+    if (composition.managementNumberType === 'cosmax') {
+      format = composition.cosmaxNumberFormat || 'ABC';
+    } else {
+      format = composition.clientNumberDescription || '고객사관리번호';
+    }
+    items.push({ line: composition.managementNumberLine || 1, format });
+  }
+  
+  if (composition.hasExpiryDate) {
+    let format = '';
+    if (composition.expiryDateFormat === 'other') {
+      format = composition.expiryDateCustom || '사용기한';
+    } else {
+      format = EXPIRY_DATE_FORMAT_LABELS[composition.expiryDateFormat || 'YYYYMMDD'];
+    }
+    items.push({ line: composition.expiryDateLine || 1, format });
+  }
+  
+  if (composition.hasManufactureDate) {
+    let format = '';
+    if (composition.manufactureDateFormat === 'other') {
+      format = composition.manufactureDateCustom || '제조일자';
+    } else {
+      format = MANUFACTURE_DATE_FORMAT_LABELS[composition.manufactureDateFormat || 'YYYYMMDD_MFG'];
+    }
+    items.push({ line: composition.manufactureDateLine || 1, format });
+  }
+  
+  if (composition.hasOther) {
+    items.push({ line: composition.otherLine || 1, format: composition.otherDescription || '기타' });
+  }
+  
+  if (items.length === 0) return [];
+  
+  const maxLine = Math.max(...items.map(i => i.line));
+  const lines: string[] = [];
+  
+  for (let lineNum = 1; lineNum <= maxLine; lineNum++) {
+    const lineItems = items.filter(i => i.line === lineNum);
+    if (lineItems.length > 0) {
+      lines.push(lineItems.map(i => i.format).join(' '));
+    }
+  }
+  
+  return lines;
 };
 
 export const MarkingForm: React.FC<MarkingFormProps> = ({
@@ -47,7 +95,7 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
   onUpdate,
   onUpdateComposition,
 }) => {
-  const checkedItems = getCheckedItems(data.composition);
+  const previewLines = getMarkingPreviewLines(data.composition);
 
   return (
     <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -95,6 +143,18 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
               label="위치 이미지"
             />
           </FormGroup>
+
+          {/* 착인 순서 미리보기 */}
+          {previewLines.length > 0 && (
+            <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-800 font-medium mb-2">착인 순서 미리보기:</p>
+              <div className="font-mono text-sm text-green-700 bg-white p-2 rounded border border-green-100">
+                {previewLines.map((line, index) => (
+                  <div key={index}>{line}</div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 우측: 착인 구성 */}
@@ -108,20 +168,7 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
         </div>
       </div>
 
-      {/* 착인 순서 미리보기 - 착인 위치 이미지 아래 */}
-      {checkedItems.length > 0 && (
-        <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-          <p className="text-sm text-green-800 font-medium mb-1">착인 순서 미리보기:</p>
-          <div className="text-sm text-green-700">
-            {checkedItems.map((item, index) => (
-              <span key={item}>
-                {index + 1}번째 줄: {item}
-                {index < checkedItems.length - 1 && <br />}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };
