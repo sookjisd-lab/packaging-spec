@@ -19,7 +19,17 @@ export const PackagingMethod: React.FC = () => {
         <TextArea
           value={packagingMethod.description}
           onChange={(value) => setPackagingMethod({ description: value })}
-          placeholder="예: 1. 구성품을 단상자에 넣는다. 2. 단상자를 세트상자에 넣는다. 3. 세트상자를 아웃박스에 넣는다..."
+          placeholder={`예:
+1.용기에 내용물 충전 후 캡 결합
+ - 용기봉합 라벨 부착 [우측면, 캡과 용기가 이어지게]
+
+2.단상자에 용기 포장
+ - 봉합라벨 부착 [후면 상단, 결합부 가운데, 로고가 윗면 위치하도록(방향성 있음)]
+
+3.인박스에 단상자 포장
+ - 빈공간 완충재 투입 요청
+
+4.아웃박스에 인박스 포장`}
           rows={6}
         />
       </FormGroup>
