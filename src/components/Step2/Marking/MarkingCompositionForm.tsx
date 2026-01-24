@@ -230,6 +230,35 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
         )}
       </div>
 
+      {/* 착인 순서 미리보기 */}
+      {checkedCount > 0 && (
+        <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+          <h5 className="font-medium text-green-800 mb-2">착인 순서 미리보기:</h5>
+          <div className="text-sm text-green-700 space-y-1">
+            {(() => {
+              const items: { line: number; name: string }[] = [];
+              if (composition.hasManagementNumber) {
+                items.push({ line: composition.managementNumberLine || 1, name: '관리번호' });
+              }
+              if (composition.hasExpiryDate) {
+                items.push({ line: composition.expiryDateLine || 1, name: '사용기한' });
+              }
+              if (composition.hasManufactureDate) {
+                items.push({ line: composition.manufactureDateLine || 1, name: '제조일자' });
+              }
+              if (composition.hasOther) {
+                items.push({ line: composition.otherLine || 1, name: composition.otherDescription || '기타' });
+              }
+              return items
+                .sort((a, b) => a.line - b.line)
+                .map((item, idx) => (
+                  <div key={idx}>{item.line}번째 줄: {item.name}</div>
+                ));
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* 사용기한/제조일자 선택 시 추가 옵션 */}
       {showExpiryOptions && (
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
