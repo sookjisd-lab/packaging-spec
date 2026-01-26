@@ -1,40 +1,20 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../hooks/useAuth';
 
 export const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
+  const { session, loading } = useAuth();
 
   useEffect(() => {
-    let isMounted = true;
-
-    const handleCallback = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!isMounted) return;
-        
-        if (session) {
-          navigate('/', { replace: true });
-        } else {
-          navigate('/login', { replace: true });
-        }
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          return;
-        }
-        if (isMounted) {
-          navigate('/login', { replace: true });
-        }
-      }
-    };
-
-    handleCallback();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [navigate]);
+    if (loading) return;
+    
+    if (session) {
+      navigate('/', { replace: true });
+    } else {
+      navigate('/login', { replace: true });
+    }
+  }, [session, loading, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
