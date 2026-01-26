@@ -6,13 +6,34 @@ export const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/', { replace: true });
-      } else {
-        navigate('/login', { replace: true });
+    let isMounted = true;
+
+    const handleCallback = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
+        if (session) {
+          navigate('/', { replace: true });
+        } else {
+          navigate('/login', { replace: true });
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        if (isMounted) {
+          navigate('/login', { replace: true });
+        }
       }
-    });
+    };
+
+    handleCallback();
+
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   return (

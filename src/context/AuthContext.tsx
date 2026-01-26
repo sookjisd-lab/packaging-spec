@@ -41,20 +41,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user?.id) {
-        fetchUserProfile(session.user.id).then(setUser);
-      }
-      setLoading(false);
-    });
+    let isMounted = true;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
         setSession(session);
         if (session?.user?.id) {
           const profile = await fetchUserProfile(session.user.id);
-          setUser(profile);
+          if (isMounted) {
+            setUser(profile);
+          }
+        }
+      } catch (error) {
+        // AbortError는 컴포넌트 언마운트 시 발생할 수 있으므로 무시
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+        console.error('Failed to initialize auth:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (!isMounted) return;
+        
+        setSession(session);
+        if (session?.user?.id) {
+          const profile = await fetchUserProfile(session.user.id);
+          if (isMounted) {
+            setUser(profile);
+          }
         } else {
           setUser(null);
         }
@@ -62,7 +88,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignInWithGoogle = async () => {
