@@ -44,6 +44,29 @@ export interface Database {
           updated_at?: string;
         };
       };
+      app_credentials: {
+        Row: {
+          id: string;
+          username: string;
+          password: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          username: string;
+          password: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          username?: string;
+          password?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+      };
       packaging_specifications: {
         Row: {
           id: string;
@@ -102,3 +125,6 @@ export type UserUpdate = Database['public']['Tables']['users']['Update'];
 export type PackagingSpecification = Database['public']['Tables']['packaging_specifications']['Row'];
 export type PackagingSpecificationInsert = Database['public']['Tables']['packaging_specifications']['Insert'];
 export type PackagingSpecificationUpdate = Database['public']['Tables']['packaging_specifications']['Update'];
+
+export type AppCredential = Database['public']['Tables']['app_credentials']['Row'];
+export type AppCredentialUpdate = Database['public']['Tables']['app_credentials']['Update'];

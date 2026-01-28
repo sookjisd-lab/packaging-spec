@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { SecondaryLoginPage } from '../../pages/SecondaryLoginPage';
 
 export const ProtectedRoute: React.FC = () => {
   const { session, loading } = useAuth();
@@ -16,6 +17,24 @@ export const ProtectedRoute: React.FC = () => {
 
   if (!session) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <Outlet />;
+};
+
+export const AppAuthRoute: React.FC = () => {
+  const { isAppAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
+  if (!isAppAuthenticated) {
+    return <SecondaryLoginPage />;
   }
 
   return <Outlet />;

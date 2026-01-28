@@ -9,7 +9,7 @@ import { LoginPage } from './pages/LoginPage';
 import { PendingPage } from './pages/PendingPage';
 import { AdminPage } from './pages/AdminPage';
 import { AuthCallback } from './components/auth/AuthCallback';
-import { ProtectedRoute, ActiveUserRoute, AdminRoute } from './components/auth/ProtectedRoute';
+import { ProtectedRoute, AppAuthRoute, ActiveUserRoute, AdminRoute } from './components/auth/ProtectedRoute';
 import { LogoutButton } from './components/auth/LogoutButton';
 
 const StepIndicator: React.FC = () => {
@@ -136,11 +136,13 @@ const App: React.FC = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/pending" element={<PendingPage />} />
         
-        <Route element={<ActiveUserRoute />}>
-          <Route path="/" element={<SpecFormPage />} />
-          
-          <Route element={<AdminRoute />}>
-            <Route path="/admin" element={<AdminPage />} />
+        <Route element={<AppAuthRoute />}>
+          <Route element={<ActiveUserRoute />}>
+            <Route path="/" element={<SpecFormPage />} />
+            
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminPage />} />
+            </Route>
           </Route>
         </Route>
       </Route>

@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useUsers } from '../hooks/useUsers';
 import { UserList } from '../components/admin/UserList';
+import { CredentialSettings } from '../components/admin/CredentialSettings';
 import { LogoutButton } from '../components/auth/LogoutButton';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
-  const { users, loading, error, updateUserRole, updateUserActive } = useUsers();
+  const { users, loading, error, updateUserRole, updateUserActive, deleteUser } = useUsers();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredUsers = users.filter(user =>
@@ -81,8 +82,13 @@ export const AdminPage: React.FC = () => {
               users={filteredUsers}
               onRoleChange={updateUserRole}
               onActiveChange={updateUserActive}
+              onDelete={deleteUser}
             />
           )}
+        </div>
+
+        <div className="mt-8">
+          <CredentialSettings />
         </div>
 
         <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -96,6 +102,7 @@ export const AdminPage: React.FC = () => {
                 <li>자기 자신의 역할과 활성 상태는 변경할 수 없습니다.</li>
                 <li>비활성화된 사용자는 서비스에 접근할 수 없습니다.</li>
                 <li>관리자 권한을 부여하면 사용자 관리 페이지에 접근할 수 있습니다.</li>
+                <li>삭제된 사용자는 복구할 수 없으며, 모든 데이터가 함께 삭제됩니다.</li>
               </ul>
             </div>
           </div>
