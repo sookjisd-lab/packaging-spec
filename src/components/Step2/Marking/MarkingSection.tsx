@@ -20,9 +20,20 @@ export const MarkingSection: React.FC = () => {
     }
   };
 
+  const showSyncHint = markingForms.length > 1;
+
   return (
     <FormSection title="2. 착인 방법">
-      <p className="text-gray-600 mb-4">{getConfigDescription()}</p>
+      <p className="text-gray-600 mb-2">{getConfigDescription()}</p>
+      
+      {showSyncHint && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-700">
+            💡 첫 번째 구성품의 착인 구성 설정이 나머지 항목에 자동으로 적용됩니다.
+            (개별 항목 수정 시 해당 항목은 자동 동기화가 해제됩니다)
+          </p>
+        </div>
+      )}
 
       <div className="space-y-6">
         {markingForms.map((form) => (

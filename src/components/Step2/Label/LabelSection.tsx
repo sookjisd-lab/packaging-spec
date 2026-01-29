@@ -16,14 +16,24 @@ export const LabelSection: React.FC = () => {
     updatePaletteLabelCustomItems,
   } = useFormStore();
 
+  const showSyncHint = labelForms.length > 1;
+
   return (
     <FormSection title="3. 포장재 라벨">
-      <p className="text-gray-600 mb-4">
+      <p className="text-gray-600 mb-2">
         Step 1에서 선택한 각 포장재의 라벨 정보를 입력해주세요.
       </p>
+      
+      {showSyncHint && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-700">
+            💡 첫 번째 포장재에서 '직접입력' 선택 후 라벨 항목을 설정하면, 
+            다른 포장재에서 '직접입력' 선택 시 동일한 설정이 자동으로 적용됩니다.
+          </p>
+        </div>
+      )}
 
       <div className="space-y-6">
-        {/* 포장재별 라벨 폼 */}
         {labelForms.map((form) => (
           <LabelForm
             key={form.id}

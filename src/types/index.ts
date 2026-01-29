@@ -115,20 +115,21 @@ export interface MarkingComposition {
 /** 개별 착인 양식 데이터 */
 export interface MarkingFormData {
   id: string;
-  targetName: string; // 구성품명 또는 단상자/세트상자
+  targetName: string;
   targetType: 'component' | 'individualBox' | 'setBox';
+  isFirstComponent?: boolean;
   
-  // 착인 방법
   method: MarkingMethod;
   methodOther?: string;
   
-  // 착인 위치
   position: MarkingPosition;
   positionOther?: string;
-  positionImage?: string; // base64 이미지
+  positionImage?: string;
   
-  // 착인 구성
   composition: MarkingComposition;
+  
+  isCompositionManuallyEdited?: boolean;
+  isExpiryBasisManuallyEdited?: boolean;
 }
 
 // ============================================
@@ -140,16 +141,20 @@ export type LabelFormatType = 'none' | 'separate' | 'wms' | 'custom';
 
 /** 직접입력 라벨 항목 */
 export interface CustomLabelItem {
-  productName: boolean;      // 제품명
-  quantity: boolean;         // 수량
-  managementNumber: boolean; // 관리번호
-  expiryDate: boolean;       // 사용기한
-  packagingDate: boolean;    // 포장(제조)일자
-  clientProductCode: boolean;// 고객사제품코드
-  englishName: boolean;      // 영문명
-  barcodeImage: boolean;     // 바코드(이미지화)
-  barcodeNumber: boolean;    // 바코드(숫자만)
-  others: string[];          // 기타 (중복 가능)
+  productName: boolean;
+  quantity: boolean;
+  managementNumber: boolean;
+  expiryDate: boolean;
+  packagingDate: boolean;
+  clientProductCode: boolean;
+  englishName: boolean;
+  barcodeImage: boolean;
+  barcodeNumber: boolean;
+  others: string[];
+  productNameValue?: string;
+  englishNameValue?: string;
+  clientProductCodeValue?: string;
+  barcodeValue?: string;
 }
 
 /** 라벨 부착 위치 */
@@ -165,23 +170,22 @@ export type BoxTapingType = 'straight' | 'hShape' | 'other';
 export interface LabelFormData {
   id: string;
   packagingMaterialType: PackagingMaterialType;
-  packagingMaterialName: string; // 표시용 이름
+  packagingMaterialName: string;
   
-  // 라벨 양식
   formatType?: LabelFormatType;
-  separateFormatImage?: string; // 별도양식 이미지
+  separateFormatImage?: string;
   customLabelItems?: CustomLabelItem;
   
-  // 라벨 부착 위치
   attachPosition: LabelAttachPosition;
   attachPositionOther?: string;
   attachCount: LabelAttachCount;
   attachCountOther?: string;
   
-  // 박스 테이핑 (지퍼백 제외)
   hasTaping?: boolean;
   tapingType?: BoxTapingType;
   tapingOther?: string;
+  
+  isCustomItemsManuallyEdited?: boolean;
 }
 
 /** 팔레트 라벨 데이터 */

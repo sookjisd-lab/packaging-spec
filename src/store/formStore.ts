@@ -99,15 +99,13 @@ interface FormState {
   addPackagingMethodImage: (image: string) => void;
   removePackagingMethodImage: (index: number) => void;
   
-  // 착인 폼 액션
   generateMarkingForms: () => void;
   updateMarkingForm: (id: string, updates: Partial<MarkingFormData>) => void;
-  updateMarkingComposition: (formId: string, updates: Partial<MarkingComposition>) => void;
+  updateMarkingComposition: (formId: string, updates: Partial<MarkingComposition>, isManualEdit?: boolean) => void;
   
-  // 라벨 폼 액션
   generateLabelForms: () => void;
   updateLabelForm: (id: string, updates: Partial<LabelFormData>) => void;
-  updateCustomLabelItems: (formId: string, updates: Partial<CustomLabelItem>) => void;
+  updateCustomLabelItems: (formId: string, updates: Partial<CustomLabelItem>, isManualEdit?: boolean) => void;
   addCustomLabelOther: (formId: string, value: string) => void;
   removeCustomLabelOther: (formId: string, index: number) => void;
   
@@ -254,33 +252,38 @@ export const useFormStore = create<FormState>()(
         },
       })),
       
-      // 착인 폼 생성
       generateMarkingForms: () => {
         const state = get();
         const { productConfig, setComponents } = state.typeSelection;
         const forms: MarkingFormData[] = [];
+        let isFirstComponentMarked = false;
         
         const createMarkingForm = (
           targetName: string,
           targetType: 'component' | 'individualBox' | 'setBox'
-        ): MarkingFormData => ({
-          id: generateId(),
-          targetName,
-          targetType,
-          method: 'coding',
-          position: 'bottom',
-          composition: createDefaultMarkingComposition(),
-        });
+        ): MarkingFormData => {
+          const isFirstComp = targetType === 'component' && !isFirstComponentMarked;
+          if (isFirstComp) isFirstComponentMarked = true;
+          
+          return {
+            id: generateId(),
+            targetName,
+            targetType,
+            isFirstComponent: isFirstComp,
+            method: 'coding',
+            position: 'bottom',
+            composition: createDefaultMarkingComposition(),
+            isCompositionManuallyEdited: false,
+            isExpiryBasisManuallyEdited: false,
+          };
+        };
         
         if (productConfig === 'single') {
-          // 단품: 구성품1 + 단상자
           forms.push(createMarkingForm('구성품', 'component'));
           forms.push(createMarkingForm('단상자', 'individualBox'));
         } else if (productConfig === 'unboxed') {
-          // 미품: 구성품1만
           forms.push(createMarkingForm('구성품', 'component'));
         } else if (productConfig === 'set' && setComponents) {
-          // 기획세트: 각 구성품 + 단상자(있으면) + 세트상자
           setComponents.forEach((comp, index) => {
             forms.push(createMarkingForm(comp.name || `구성품 ${index + 1}`, 'component'));
             if (comp.hasIndividualBox) {
@@ -299,15 +302,71 @@ export const useFormStore = create<FormState>()(
         ),
       })),
       
-      updateMarkingComposition: (formId, updates) => set((state) => ({
-        markingForms: state.markingForms.map((form) =>
-          form.id === formId
-            ? { ...form, composition: { ...form.composition, ...updates } }
-            : form
-        ),
-      })),
+      updateMarkingComposition: (formId, updates, isManualEdit = true) => {
+        const state = get();
+        const targetForm = state.markingForms.find(f => f.id === formId);
+        if (!targetForm) return;
+        
+        const updatedComposition = { ...targetForm.composition, ...updates };
+        const isExpiryBasisUpdate = 'expiryBasis' in updates || 'expiryMonths' in updates;
+        
+        if (targetForm.isFirstComponent && isManualEdit) {
+          const compositionKeysToSync: (keyof MarkingComposition)[] = [
+            'hasManagementNumber', 'managementNumberType', 'cosmaxNumberFormat', 
+            'clientNumberDescription', 'managementNumberLine',
+            'hasExpiryDate', 'expiryDateFormat', 'expiryDateCustom', 'expiryDateLine',
+            'hasManufactureDate', 'manufactureDateFormat', 'manufactureDateCustom', 'manufactureDateLine',
+            'hasOther', 'otherDescription', 'otherLine',
+          ];
+          
+          const expiryBasisKeys: (keyof MarkingComposition)[] = ['expiryBasis', 'expiryMonths'];
+          
+          set((s) => ({
+            markingForms: s.markingForms.map((form) => {
+              if (form.id === formId) {
+                return { 
+                  ...form, 
+                  composition: updatedComposition,
+                  isCompositionManuallyEdited: true,
+                };
+              }
+              
+              if (form.isCompositionManuallyEdited) return form;
+              
+              const syncedComp = { ...form.composition };
+              compositionKeysToSync.forEach((key) => {
+                if (key in updates) {
+                  (syncedComp as Record<string, unknown>)[key] = updates[key as keyof typeof updates];
+                }
+              });
+              
+              if (isExpiryBasisUpdate && !form.isExpiryBasisManuallyEdited && form.targetType !== 'setBox') {
+                expiryBasisKeys.forEach((key) => {
+                  if (key in updates) {
+                    (syncedComp as Record<string, unknown>)[key] = updates[key as keyof typeof updates];
+                  }
+                });
+              }
+              
+              return { ...form, composition: syncedComp };
+            }),
+          }));
+        } else {
+          set((s) => ({
+            markingForms: s.markingForms.map((form) =>
+              form.id === formId
+                ? { 
+                    ...form, 
+                    composition: updatedComposition,
+                    isCompositionManuallyEdited: isManualEdit,
+                    isExpiryBasisManuallyEdited: isExpiryBasisUpdate ? isManualEdit : form.isExpiryBasisManuallyEdited,
+                  }
+                : form
+            ),
+          }));
+        }
+      },
       
-      // 라벨 폼 생성
       generateLabelForms: () => {
         const state = get();
         const { packagingMaterials } = state.typeSelection;
@@ -321,30 +380,76 @@ export const useFormStore = create<FormState>()(
           attachCount: 'single',
           hasTaping: material.type !== 'zipperBag',
           tapingType: 'straight',
+          isCustomItemsManuallyEdited: false,
         }));
         
         set({ labelForms: forms });
       },
       
-      updateLabelForm: (id, updates) => set((state) => ({
-        labelForms: state.labelForms.map((form) =>
-          form.id === id ? { ...form, ...updates } : form
-        ),
-      })),
+      updateLabelForm: (id, updates) => {
+        const state = get();
+        const formIndex = state.labelForms.findIndex(f => f.id === id);
+        
+        if (formIndex === -1) return;
+        
+        if ('formatType' in updates && updates.formatType === 'custom' && formIndex > 0) {
+          const firstForm = state.labelForms[0];
+          if (firstForm.formatType === 'custom' && firstForm.customLabelItems && !state.labelForms[formIndex].isCustomItemsManuallyEdited) {
+            set((s) => ({
+              labelForms: s.labelForms.map((form, idx) => {
+                if (idx !== formIndex) return form;
+                const checkboxItems: Partial<CustomLabelItem> = {
+                  productName: firstForm.customLabelItems!.productName,
+                  quantity: firstForm.customLabelItems!.quantity,
+                  managementNumber: firstForm.customLabelItems!.managementNumber,
+                  expiryDate: firstForm.customLabelItems!.expiryDate,
+                  packagingDate: firstForm.customLabelItems!.packagingDate,
+                  clientProductCode: firstForm.customLabelItems!.clientProductCode,
+                  englishName: firstForm.customLabelItems!.englishName,
+                  barcodeImage: firstForm.customLabelItems!.barcodeImage,
+                  barcodeNumber: firstForm.customLabelItems!.barcodeNumber,
+                  others: [...(firstForm.customLabelItems!.others || [])],
+                };
+                return { 
+                  ...form, 
+                  ...updates, 
+                  customLabelItems: {
+                    ...(form.customLabelItems || createDefaultCustomLabelItem()),
+                    ...checkboxItems,
+                  },
+                };
+              }),
+            }));
+            return;
+          }
+        }
+        
+        set((s) => ({
+          labelForms: s.labelForms.map((form) =>
+            form.id === id ? { ...form, ...updates } : form
+          ),
+        }));
+      },
       
-      updateCustomLabelItems: (formId, updates) => set((state) => ({
-        labelForms: state.labelForms.map((form) =>
-          form.id === formId
-            ? {
-                ...form,
-                customLabelItems: {
-                  ...(form.customLabelItems || createDefaultCustomLabelItem()),
-                  ...updates,
-                },
-              }
-            : form
-        ),
-      })),
+      updateCustomLabelItems: (formId, updates, isManualEdit = true) => {
+        const state = get();
+        const formIndex = state.labelForms.findIndex(f => f.id === formId);
+        
+        set((s) => ({
+          labelForms: s.labelForms.map((form) =>
+            form.id === formId
+              ? {
+                  ...form,
+                  customLabelItems: {
+                    ...(form.customLabelItems || createDefaultCustomLabelItem()),
+                    ...updates,
+                  },
+                  isCustomItemsManuallyEdited: formIndex > 0 && isManualEdit ? true : form.isCustomItemsManuallyEdited,
+                }
+              : form
+          ),
+        }));
+      },
       
       addCustomLabelOther: (formId, value) => set((state) => ({
         labelForms: state.labelForms.map((form) =>

@@ -9,6 +9,12 @@ interface CustomLabelFormProps {
   onRemoveOther: (index: number) => void;
 }
 
+const PRODUCT_INFO_FIELDS = [
+  { key: 'productName', valueKey: 'productNameValue', label: '제품명' },
+  { key: 'englishName', valueKey: 'englishNameValue', label: '영문명' },
+  { key: 'clientProductCode', valueKey: 'clientProductCodeValue', label: '고객사제품코드' },
+] as const;
+
 export const CustomLabelForm: React.FC<CustomLabelFormProps> = ({
   items,
   onChange,
@@ -24,7 +30,6 @@ export const CustomLabelForm: React.FC<CustomLabelFormProps> = ({
     }
   };
 
-  // 체크된 항목들을 순서대로 수집
   const getCheckedItems = (): string[] => {
     const checkedItems: string[] = [];
     if (items.productName) checkedItems.push('제품명');
@@ -39,6 +44,10 @@ export const CustomLabelForm: React.FC<CustomLabelFormProps> = ({
     items.others?.forEach((other) => checkedItems.push(other));
     return checkedItems;
   };
+
+  const hasProductInfoField = items.productName || items.englishName || items.clientProductCode;
+  const hasBarcode = items.barcodeImage || items.barcodeNumber;
+  const showProductInfoSection = hasProductInfoField || hasBarcode;
 
   const checkedItems = getCheckedItems();
 
@@ -92,7 +101,36 @@ export const CustomLabelForm: React.FC<CustomLabelFormProps> = ({
         />
       </div>
 
-      {/* 기타 항목 */}
+      {showProductInfoSection && (
+        <div className="border-t border-gray-200 pt-4">
+          <p className="text-sm font-medium text-gray-700 mb-3">제품 정보</p>
+          <div className="space-y-3">
+            {PRODUCT_INFO_FIELDS.filter(field => items[field.key]).map((field) => (
+              <div key={field.key} className="flex items-center gap-3">
+                <label className="w-32 text-sm text-gray-600 flex-shrink-0">{field.label}:</label>
+                <TextInput
+                  value={items[field.valueKey] || ''}
+                  onChange={(value) => onChange({ [field.valueKey]: value })}
+                  placeholder={`${field.label} 입력`}
+                  className="flex-1"
+                />
+              </div>
+            ))}
+            {hasBarcode && (
+              <div className="flex items-center gap-3">
+                <label className="w-32 text-sm text-gray-600 flex-shrink-0">바코드:</label>
+                <TextInput
+                  value={items.barcodeValue || ''}
+                  onChange={(value) => onChange({ barcodeValue: value })}
+                  placeholder="바코드 입력"
+                  className="flex-1"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="border-t border-gray-200 pt-4">
         <p className="text-sm text-gray-600 mb-2">기타 항목 (중복 추가 가능)</p>
         
