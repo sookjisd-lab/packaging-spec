@@ -6,18 +6,27 @@ import type {
   CosmaxNumberFormat,
   ExpiryDateFormat,
   ManufactureDateFormat,
-  ExpiryBasis 
+  ExpiryBasis,
+  TubeMarkingSide,
 } from '../../../types';
 import {
   EXPIRY_DATE_FORMAT_LABELS,
   MANUFACTURE_DATE_FORMAT_LABELS,
   EXPIRY_BASIS_LABELS,
+  TUBE_MARKING_SIDE_LABELS,
 } from '../../../types';
 
 interface MarkingCompositionFormProps {
   composition: MarkingComposition;
   onChange: (updates: Partial<MarkingComposition>) => void;
+  isTubeEngraving?: boolean;
+  isSachetOrMask?: boolean;
 }
+
+const tubeMarkingSideOptions = Object.entries(TUBE_MARKING_SIDE_LABELS).map(([value, label]) => ({
+  value: value as TubeMarkingSide,
+  label,
+}));
 
 const managementNumberOptions = [
   { value: 'cosmax' as ManagementNumberType, label: '코스맥스관리번호' },
@@ -47,6 +56,8 @@ const expiryBasisOptions = Object.entries(EXPIRY_BASIS_LABELS).map(([value, labe
 export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
   composition,
   onChange,
+  isTubeEngraving = false,
+  isSachetOrMask = false,
 }) => {
   const showExpiryOptions = composition.hasExpiryDate || composition.hasManufactureDate;
 
@@ -57,18 +68,72 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
     composition.hasOther,
   ].filter(Boolean).length;
 
+  const getNextTubeSide = (): TubeMarkingSide => {
+    const existingSides: TubeMarkingSide[] = [];
+    if (composition.hasManagementNumber && composition.managementNumberSide) {
+      existingSides.push(composition.managementNumberSide);
+    }
+    if (composition.hasExpiryDate && composition.expiryDateSide) {
+      existingSides.push(composition.expiryDateSide);
+    }
+    if (composition.hasManufactureDate && composition.manufactureDateSide) {
+      existingSides.push(composition.manufactureDateSide);
+    }
+    if (composition.hasOther && composition.otherSide) {
+      existingSides.push(composition.otherSide);
+    }
+    
+    if (existingSides.length === 0) return 'front';
+    if (!existingSides.includes('back')) return 'back';
+    return 'front';
+  };
+
   const lineOptions = Array.from({ length: checkedCount }, (_, i) => ({
     value: i + 1,
     label: `${i + 1}번째 줄`,
   }));
 
+  const renderPositionSelector = (
+    _value: number | TubeMarkingSide | undefined,
+    lineKey: keyof MarkingComposition,
+    sideKey: keyof MarkingComposition
+  ) => {
+    if (isTubeEngraving) {
+      return (
+        <select
+          className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+          value={(composition[sideKey] as TubeMarkingSide) || 'front'}
+          onChange={(e) => onChange({ [sideKey]: e.target.value as TubeMarkingSide })}
+        >
+          {tubeMarkingSideOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      );
+    }
+    
+    return checkedCount > 0 ? (
+      <select
+        className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+        value={(composition[lineKey] as number) || 1}
+        onChange={(e) => onChange({ [lineKey]: Number(e.target.value) })}
+      >
+        {lineOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+    ) : null;
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-gray-600 mb-2">
-        착인 구성 항목을 선택하고, 각 항목이 몇 번째 줄에 표시될지 설정하세요.
+        {isTubeEngraving 
+          ? '착인 구성 항목을 선택하고, 각 항목이 전면/후면 중 어디에 표시될지 설정하세요.'
+          : '착인 구성 항목을 선택하고, 각 항목이 몇 번째 줄에 표시될지 설정하세요.'
+        }
       </p>
 
-      {/* 관리번호 */}
       <div className="p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between">
           <Checkbox
@@ -76,22 +141,20 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
             checked={composition.hasManagementNumber}
             onChange={(checked) => {
               if (checked) {
-                onChange({ hasManagementNumber: true, managementNumberLine: checkedCount + 1 });
+                onChange({ 
+                  hasManagementNumber: true, 
+                  managementNumberLine: isSachetOrMask ? 1 : checkedCount + 1,
+                  managementNumberSide: isTubeEngraving ? getNextTubeSide() : undefined,
+                });
               } else {
                 onChange({ hasManagementNumber: false });
               }
             }}
           />
-          {composition.hasManagementNumber && checkedCount > 0 && (
-            <select
-              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              value={composition.managementNumberLine || 1}
-              onChange={(e) => onChange({ managementNumberLine: Number(e.target.value) })}
-            >
-              {lineOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+          {composition.hasManagementNumber && renderPositionSelector(
+            isTubeEngraving ? composition.managementNumberSide : composition.managementNumberLine,
+            'managementNumberLine',
+            'managementNumberSide'
           )}
         </div>
         
@@ -130,7 +193,6 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
         )}
       </div>
 
-      {/* 사용기한 */}
       <div className="p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between">
           <Checkbox
@@ -138,22 +200,20 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
             checked={composition.hasExpiryDate}
             onChange={(checked) => {
               if (checked) {
-                onChange({ hasExpiryDate: true, expiryDateLine: checkedCount + 1 });
+                onChange({ 
+                  hasExpiryDate: true, 
+                  expiryDateLine: isSachetOrMask ? 1 : checkedCount + 1,
+                  expiryDateSide: isTubeEngraving ? getNextTubeSide() : undefined,
+                });
               } else {
                 onChange({ hasExpiryDate: false });
               }
             }}
           />
-          {composition.hasExpiryDate && checkedCount > 0 && (
-            <select
-              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              value={composition.expiryDateLine || 1}
-              onChange={(e) => onChange({ expiryDateLine: Number(e.target.value) })}
-            >
-              {lineOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+          {composition.hasExpiryDate && renderPositionSelector(
+            isTubeEngraving ? composition.expiryDateSide : composition.expiryDateLine,
+            'expiryDateLine',
+            'expiryDateSide'
           )}
         </div>
         
@@ -173,7 +233,6 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
         )}
       </div>
 
-      {/* 제조일자 */}
       <div className="p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between">
           <Checkbox
@@ -181,22 +240,20 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
             checked={composition.hasManufactureDate}
             onChange={(checked) => {
               if (checked) {
-                onChange({ hasManufactureDate: true, manufactureDateLine: checkedCount + 1 });
+                onChange({ 
+                  hasManufactureDate: true, 
+                  manufactureDateLine: isSachetOrMask ? 1 : checkedCount + 1,
+                  manufactureDateSide: isTubeEngraving ? getNextTubeSide() : undefined,
+                });
               } else {
                 onChange({ hasManufactureDate: false });
               }
             }}
           />
-          {composition.hasManufactureDate && checkedCount > 0 && (
-            <select
-              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              value={composition.manufactureDateLine || 1}
-              onChange={(e) => onChange({ manufactureDateLine: Number(e.target.value) })}
-            >
-              {lineOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+          {composition.hasManufactureDate && renderPositionSelector(
+            isTubeEngraving ? composition.manufactureDateSide : composition.manufactureDateLine,
+            'manufactureDateLine',
+            'manufactureDateSide'
           )}
         </div>
         
@@ -216,7 +273,6 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
         )}
       </div>
 
-      {/* 기타 */}
       <div className="p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between">
           <Checkbox
@@ -224,22 +280,20 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
             checked={composition.hasOther}
             onChange={(checked) => {
               if (checked) {
-                onChange({ hasOther: true, otherLine: checkedCount + 1 });
+                onChange({ 
+                  hasOther: true, 
+                  otherLine: isSachetOrMask ? 1 : checkedCount + 1,
+                  otherSide: isTubeEngraving ? getNextTubeSide() : undefined,
+                });
               } else {
                 onChange({ hasOther: false });
               }
             }}
           />
-          {composition.hasOther && checkedCount > 0 && (
-            <select
-              className="ml-4 px-2 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              value={composition.otherLine || 1}
-              onChange={(e) => onChange({ otherLine: Number(e.target.value) })}
-            >
-              {lineOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+          {composition.hasOther && renderPositionSelector(
+            isTubeEngraving ? composition.otherSide : composition.otherLine,
+            'otherLine',
+            'otherSide'
           )}
         </div>
         

@@ -42,6 +42,7 @@ export const MarkingSection: React.FC = () => {
             data={form}
             onUpdate={(updates) => updateMarkingForm(form.id, updates)}
             onUpdateComposition={(updates) => updateMarkingComposition(form.id, updates)}
+            productConfig={productConfig}
           />
         ))}
       </div>

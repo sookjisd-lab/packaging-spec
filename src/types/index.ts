@@ -56,7 +56,16 @@ export interface TypeSelectionData {
 export type MarkingMethod = 'coding' | 'engraving' | 'other';
 
 /** 착인 위치 */
-export type MarkingPosition = 'bottom' | 'back' | 'other';
+export type MarkingPosition = 'bottom' | 'back' | 'sealingFace' | 'frontBottom' | 'backBottom' | 'other';
+
+/** 튜브 커팅 모양 */
+export type TubeCuttingShape = 'straight' | 'round' | 'other';
+
+/** 튜브 커팅 길이 */
+export type TubeCuttingLength = 'minimum' | 'matchBox' | 'custom';
+
+/** 튜브 착인 면 (전면/후면) */
+export type TubeMarkingSide = 'front' | 'back';
 
 /** 관리번호 유형 */
 export type ManagementNumberType = 'cosmax' | 'client';
@@ -81,33 +90,31 @@ export type ManufactureDateFormat =
 /** 사용기한 기준 */
 export type ExpiryBasis = 'bulkManufacture' | 'packaging' | 'filling';
 
-/** 착인 구성 항목 */
 export interface MarkingComposition {
-  // 관리번호
   hasManagementNumber: boolean;
   managementNumberType?: ManagementNumberType;
   cosmaxNumberFormat?: CosmaxNumberFormat;
   clientNumberDescription?: string;
-  managementNumberLine?: number; // 몇 번째 줄인지
+  managementNumberLine?: number;
+  managementNumberSide?: TubeMarkingSide;
   
-  // 사용기한
   hasExpiryDate: boolean;
   expiryDateFormat?: ExpiryDateFormat;
   expiryDateCustom?: string;
-  expiryDateLine?: number; // 몇 번째 줄인지
+  expiryDateLine?: number;
+  expiryDateSide?: TubeMarkingSide;
   
-  // 제조일자
   hasManufactureDate: boolean;
   manufactureDateFormat?: ManufactureDateFormat;
   manufactureDateCustom?: string;
-  manufactureDateLine?: number; // 몇 번째 줄인지
+  manufactureDateLine?: number;
+  manufactureDateSide?: TubeMarkingSide;
   
-  // 기타
   hasOther: boolean;
   otherDescription?: string;
-  otherLine?: number; // 몇 번째 줄인지
+  otherLine?: number;
+  otherSide?: TubeMarkingSide;
   
-  // 사용기한/제조일자 선택 시 추가 항목
   expiryBasis?: ExpiryBasis;
   expiryMonths?: number;
 }
@@ -118,6 +125,7 @@ export interface MarkingFormData {
   targetName: string;
   targetType: 'component' | 'individualBox' | 'setBox';
   isFirstComponent?: boolean;
+  productCategory?: ProductCategory;
   
   method: MarkingMethod;
   methodOther?: string;
@@ -125,6 +133,11 @@ export interface MarkingFormData {
   position: MarkingPosition;
   positionOther?: string;
   positionImage?: string;
+  
+  tubeCuttingShape?: TubeCuttingShape;
+  tubeCuttingShapeOther?: string;
+  tubeCuttingLength?: TubeCuttingLength;
+  tubeCuttingLengthCustom?: string;
   
   composition: MarkingComposition;
   
@@ -321,7 +334,27 @@ export const MARKING_METHOD_LABELS: Record<MarkingMethod, string> = {
 export const MARKING_POSITION_LABELS: Record<MarkingPosition, string> = {
   bottom: '하면',
   back: '후면',
+  sealingFace: '실링면',
+  frontBottom: '전면 하단',
+  backBottom: '후면 하단',
   other: '기타',
+};
+
+export const TUBE_CUTTING_SHAPE_LABELS: Record<TubeCuttingShape, string> = {
+  straight: '일자 커팅',
+  round: '라운드(R자) 커팅',
+  other: '기타',
+};
+
+export const TUBE_CUTTING_LENGTH_LABELS: Record<TubeCuttingLength, string> = {
+  minimum: '최소커팅(3mm) 커팅',
+  matchBox: '단상자 맞춰서 커팅',
+  custom: '별도 기입',
+};
+
+export const TUBE_MARKING_SIDE_LABELS: Record<TubeMarkingSide, string> = {
+  front: '전면',
+  back: '후면',
 };
 
 export const EXPIRY_DATE_FORMAT_LABELS: Record<ExpiryDateFormat, string> = {

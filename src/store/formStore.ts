@@ -16,6 +16,8 @@ import type {
   SetComponentInfo,
   MarkingComposition,
   CustomLabelItem,
+  MarkingMethod,
+  MarkingPosition,
 } from '../types';
 
 // ============================================
@@ -254,38 +256,59 @@ export const useFormStore = create<FormState>()(
       
       generateMarkingForms: () => {
         const state = get();
-        const { productConfig, setComponents } = state.typeSelection;
+        const { productConfig, productCategories, setComponents } = state.typeSelection;
         const forms: MarkingFormData[] = [];
         let isFirstComponentMarked = false;
         
+        const getDefaultsForCategory = (category?: ProductCategory): { 
+          method: MarkingMethod; 
+          position: MarkingPosition;
+        } => {
+          if (category === 'tube') {
+            return { method: 'engraving', position: 'sealingFace' };
+          }
+          if (category === 'mask') {
+            return { method: 'engraving', position: 'backBottom' };
+          }
+          if (category === 'sachet') {
+            return { method: 'coding', position: 'backBottom' };
+          }
+          return { method: 'coding', position: 'bottom' };
+        };
+        
         const createMarkingForm = (
           targetName: string,
-          targetType: 'component' | 'individualBox' | 'setBox'
+          targetType: 'component' | 'individualBox' | 'setBox',
+          category?: ProductCategory
         ): MarkingFormData => {
           const isFirstComp = targetType === 'component' && !isFirstComponentMarked;
           if (isFirstComp) isFirstComponentMarked = true;
+          
+          const defaults = targetType === 'component' ? getDefaultsForCategory(category) : { method: 'coding' as MarkingMethod, position: 'bottom' as MarkingPosition };
           
           return {
             id: generateId(),
             targetName,
             targetType,
             isFirstComponent: isFirstComp,
-            method: 'coding',
-            position: 'bottom',
+            productCategory: targetType === 'component' ? category : undefined,
+            method: defaults.method,
+            position: defaults.position,
             composition: createDefaultMarkingComposition(),
             isCompositionManuallyEdited: false,
             isExpiryBasisManuallyEdited: false,
           };
         };
         
-        if (productConfig === 'single') {
-          forms.push(createMarkingForm('구성품', 'component'));
-          forms.push(createMarkingForm('단상자', 'individualBox'));
-        } else if (productConfig === 'unboxed') {
-          forms.push(createMarkingForm('구성품', 'component'));
+        if (productConfig === 'single' || productConfig === 'unboxed') {
+          const category = productCategories[0];
+          forms.push(createMarkingForm('구성품', 'component', category));
+          if (productConfig === 'single') {
+            forms.push(createMarkingForm('단상자', 'individualBox'));
+          }
         } else if (productConfig === 'set' && setComponents) {
           setComponents.forEach((comp, index) => {
-            forms.push(createMarkingForm(comp.name || `구성품 ${index + 1}`, 'component'));
+            forms.push(createMarkingForm(comp.name || `구성품 ${index + 1}`, 'component', comp.productCategory));
             if (comp.hasIndividualBox) {
               forms.push(createMarkingForm(`${comp.name || `구성품 ${index + 1}`} 단상자`, 'individualBox'));
             }
