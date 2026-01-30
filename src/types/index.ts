@@ -59,7 +59,7 @@ export type MarkingMethod = 'coding' | 'engraving' | 'other';
 export type MarkingPosition = 'bottom' | 'back' | 'sealingFace' | 'frontBottom' | 'backBottom' | 'other';
 
 /** 튜브 커팅 모양 */
-export type TubeCuttingShape = 'straight' | 'round' | 'other';
+export type TubeCuttingShape = 'straight' | 'round' | 'bending' | 'other';
 
 /** 튜브 커팅 길이 */
 export type TubeCuttingLength = 'minimum' | 'matchBox' | 'custom';
@@ -343,6 +343,7 @@ export const MARKING_POSITION_LABELS: Record<MarkingPosition, string> = {
 export const TUBE_CUTTING_SHAPE_LABELS: Record<TubeCuttingShape, string> = {
   straight: '일자 커팅',
   round: '라운드(R자) 커팅',
+  bending: '절곡(알루미늄 튜브)',
   other: '기타',
 };
 

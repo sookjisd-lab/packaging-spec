@@ -130,7 +130,7 @@ const getMarkingPreviewLines = (composition: MarkingComposition, isTubeEngraving
     if (composition.hasManagementNumber) {
       let format = '';
       if (composition.managementNumberType === 'cosmax') {
-        format = composition.cosmaxNumberFormat || 'ABC';
+        format = composition.cosmaxNumberFormat === 'LOT_ABC' ? 'LOT ABC' : (composition.cosmaxNumberFormat || 'ABC');
       } else {
         format = composition.clientNumberDescription || '고객사관리번호';
       }
@@ -176,7 +176,7 @@ const getMarkingPreviewLines = (composition: MarkingComposition, isTubeEngraving
   if (composition.hasManagementNumber) {
     let format = '';
     if (composition.managementNumberType === 'cosmax') {
-      format = composition.cosmaxNumberFormat || 'ABC';
+      format = composition.cosmaxNumberFormat === 'LOT_ABC' ? 'LOT ABC' : (composition.cosmaxNumberFormat || 'ABC');
     } else {
       format = composition.clientNumberDescription || '고객사관리번호';
     }
@@ -229,7 +229,7 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
   productConfig,
 }) => {
   const isTube = data.productCategory === 'tube';
-  const isTubeEngraving = isTube && data.method === 'engraving';
+  const isTubeEngraving = isTube && data.method === 'engraving' && data.position === 'sealingFace';
   const isSachetOrMask = data.productCategory === 'sachet' || data.productCategory === 'mask';
   const previewLines = getMarkingPreviewLines(data.composition, isTubeEngraving);
   const positionOptions = getPositionOptionsForCategory(data.productCategory);
@@ -257,7 +257,7 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
               <FormGroup label="튜브 커팅 모양">
                 <Dropdown
                   options={tubeCuttingShapeOptions}
-                  value={data.tubeCuttingShape || 'straight'}
+                  value={data.tubeCuttingShape || ('' as TubeCuttingShape)}
                   onChange={(value) => onUpdate({ tubeCuttingShape: value })}
                   showOtherInput
                   otherValue={data.tubeCuttingShapeOther}
@@ -269,7 +269,7 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
               <FormGroup label="튜브 커팅 길이">
                 <Dropdown
                   options={cuttingLengthOptions}
-                  value={data.tubeCuttingLength || 'minimum'}
+                  value={data.tubeCuttingLength || ('' as TubeCuttingLength)}
                   onChange={(value) => onUpdate({ tubeCuttingLength: value })}
                 />
                 {data.tubeCuttingLength === 'custom' && (
