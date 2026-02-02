@@ -70,7 +70,7 @@ export const PreviewSection: React.FC = () => {
                 <td className="py-2">
                   {typeSelection.setComponents.map((comp, index) => (
                     <span key={comp.id} className="inline-block mr-4">
-                      {index + 1}. {comp.name} {comp.hasIndividualBox ? '(단상자 O)' : '(단상자 X)'}
+                      {index + 1}. {comp.name} {comp.hasIndividualPouch && '(파우치 O)'} {comp.hasIndividualBox ? '(단상자 O)' : '(단상자 X)'}
                     </span>
                   ))}
                 </td>

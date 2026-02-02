@@ -33,6 +33,7 @@ export const ProductConfigSelect: React.FC = () => {
       addSetComponent({
         id: Math.random().toString(36).substring(2, 9),
         name: '',
+        hasIndividualPouch: false,
         hasIndividualBox: false,
         productCategory: 'basic',
       });
@@ -43,6 +44,7 @@ export const ProductConfigSelect: React.FC = () => {
     addSetComponent({
       id: Math.random().toString(36).substring(2, 9),
       name: '',
+      hasIndividualPouch: false,
       hasIndividualBox: false,
       productCategory: 'basic',
     });
@@ -114,9 +116,14 @@ export const ProductConfigSelect: React.FC = () => {
                     </div>
                   )}
                   
-                  <div className="flex items-center pt-6">
+                  <div className="flex items-center gap-4 pt-6">
                     <Checkbox
-                      label="단상자 있음"
+                      label="개별 파우치"
+                      checked={component.hasIndividualPouch}
+                      onChange={(checked) => updateSetComponent(component.id, { hasIndividualPouch: checked })}
+                    />
+                    <Checkbox
+                      label="개별 단상자"
                       checked={component.hasIndividualBox}
                       onChange={(checked) => updateSetComponent(component.id, { hasIndividualBox: checked })}
                     />

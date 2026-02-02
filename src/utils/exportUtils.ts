@@ -86,7 +86,9 @@ export const exportToExcel = async (data: PackagingSpecificationData): Promise<v
     basicInfo.push(['']);
     basicInfo.push(['=== 세트 구성품 ===']);
     data.typeSelection.setComponents.forEach((comp, index) => {
-      basicInfo.push([`구성품 ${index + 1}`, comp.name, comp.hasIndividualBox ? '단상자 있음' : '단상자 없음']);
+      const pouchStatus = comp.hasIndividualPouch ? '개별 파우치' : '';
+      const boxStatus = comp.hasIndividualBox ? '개별 단상자' : '단상자 없음';
+      basicInfo.push([`구성품 ${index + 1}`, comp.name, [pouchStatus, boxStatus].filter(Boolean).join(', ')]);
     });
   }
 

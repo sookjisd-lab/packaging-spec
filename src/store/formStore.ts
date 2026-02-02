@@ -95,6 +95,8 @@ interface FormState {
   addSetComponent: (component: SetComponentInfo) => void;
   removeSetComponent: (id: string) => void;
   updateSetComponent: (id: string, updates: Partial<SetComponentInfo>) => void;
+  setHasIndividualPouch: (value: boolean) => void;
+  setHasIndividualBox: (value: boolean) => void;
   
   // Step2 액션
   setPackagingMethod: (data: Partial<PackagingMethodData>) => void;
@@ -235,6 +237,14 @@ export const useFormStore = create<FormState>()(
         },
       })),
       
+      setHasIndividualPouch: (value) => set((state) => ({
+        typeSelection: { ...state.typeSelection, hasIndividualPouch: value },
+      })),
+      
+      setHasIndividualBox: (value) => set((state) => ({
+        typeSelection: { ...state.typeSelection, hasIndividualBox: value },
+      })),
+      
       // Step2: 포장방법
       setPackagingMethod: (data) => set((state) => ({
         packagingMethod: { ...state.packagingMethod, ...data },
@@ -278,7 +288,7 @@ export const useFormStore = create<FormState>()(
         
         const createMarkingForm = (
           targetName: string,
-          targetType: 'component' | 'individualBox' | 'setBox',
+          targetType: 'component' | 'individualPouch' | 'individualBox' | 'setBox',
           category?: ProductCategory
         ): MarkingFormData => {
           const isFirstComp = targetType === 'component' && !isFirstComponentMarked;
@@ -291,7 +301,7 @@ export const useFormStore = create<FormState>()(
             targetName,
             targetType,
             isFirstComponent: isFirstComp,
-            productCategory: targetType === 'component' ? category : undefined,
+            productCategory: category,
             method: defaults.method,
             position: defaults.position,
             composition: createDefaultMarkingComposition(),
@@ -302,15 +312,22 @@ export const useFormStore = create<FormState>()(
         
         if (productConfig === 'single' || productConfig === 'unboxed') {
           const category = productCategories[0];
+          const { hasIndividualPouch } = state.typeSelection;
           forms.push(createMarkingForm('구성품', 'component', category));
+          if (hasIndividualPouch) {
+            forms.push(createMarkingForm('구성품 파우치', 'individualPouch', category));
+          }
           if (productConfig === 'single') {
             forms.push(createMarkingForm('단상자', 'individualBox'));
           }
         } else if (productConfig === 'set' && setComponents) {
           setComponents.forEach((comp, index) => {
             forms.push(createMarkingForm(comp.name || `구성품 ${index + 1}`, 'component', comp.productCategory));
+            if (comp.hasIndividualPouch) {
+              forms.push(createMarkingForm(`${comp.name || `구성품 ${index + 1}`} 파우치`, 'individualPouch', comp.productCategory));
+            }
             if (comp.hasIndividualBox) {
-              forms.push(createMarkingForm(`${comp.name || `구성품 ${index + 1}`} 단상자`, 'individualBox'));
+              forms.push(createMarkingForm(`${comp.name || `구성품 ${index + 1}`} 단상자`, 'individualBox', comp.productCategory));
             }
           });
           forms.push(createMarkingForm('세트상자', 'setBox'));

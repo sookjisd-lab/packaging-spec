@@ -108,6 +108,8 @@ const getTargetTypeLabel = (type: MarkingFormData['targetType']): string => {
   switch (type) {
     case 'component':
       return '구성품';
+    case 'individualPouch':
+      return '파우치';
     case 'individualBox':
       return '단상자';
     case 'setBox':
@@ -238,9 +240,10 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
   return (
     <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-        <span className="badge-blue">{getTargetTypeLabel(data.targetType)}</span>
-        <h4 className="font-semibold text-gray-800">{data.targetName}</h4>
-        {data.targetType === 'component' && data.productCategory && (() => {
+        <span className="badge-blue">
+          {(data.targetType === 'individualPouch' || data.targetType === 'individualBox') ? '구성품' : getTargetTypeLabel(data.targetType)}
+        </span>
+        {data.productCategory && (() => {
           const badge = getCategoryBadge(data.productCategory);
           return badge ? (
             <span className={`${badge.className} px-2 py-0.5 rounded-full text-xs font-medium`}>
@@ -248,6 +251,14 @@ export const MarkingForm: React.FC<MarkingFormProps> = ({
             </span>
           ) : null;
         })()}
+        {(data.targetType === 'individualPouch' || data.targetType === 'individualBox') && (
+          <span className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full text-xs font-medium">
+            {data.targetType === 'individualPouch' ? '파우치' : '단상자'}
+          </span>
+        )}
+        <h4 className="font-semibold text-gray-800">
+          {data.targetName.replace(/ 파우치$/, '').replace(/ 단상자$/, '')}
+        </h4>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

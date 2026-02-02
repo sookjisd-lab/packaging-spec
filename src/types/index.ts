@@ -34,7 +34,8 @@ export interface PackagingMaterial {
 export interface SetComponentInfo {
   id: string;
   name: string;
-  hasIndividualBox: boolean; // 단상자 유무
+  hasIndividualPouch: boolean; // 개별 파우치 유무
+  hasIndividualBox: boolean; // 개별 단상자 유무
   productCategory: ProductCategory; // 제품 유형
   productCategoryOther?: string; // 기타 선택 시
 }
@@ -42,10 +43,12 @@ export interface SetComponentInfo {
 /** Step1: 유형 선택 데이터 */
 export interface TypeSelectionData {
   productConfig: ProductConfigType;
-  productCategories: ProductCategory[]; // 세트의 경우 중복 선택
-  productCategoryOther?: string; // 기타 선택 시
+  productCategories: ProductCategory[];
+  productCategoryOther?: string;
   packagingMaterials: PackagingMaterial[];
-  setComponents?: SetComponentInfo[]; // 기획세트일 때만
+  setComponents?: SetComponentInfo[];
+  hasIndividualPouch?: boolean;
+  hasIndividualBox?: boolean;
 }
 
 // ============================================
@@ -123,7 +126,7 @@ export interface MarkingComposition {
 export interface MarkingFormData {
   id: string;
   targetName: string;
-  targetType: 'component' | 'individualBox' | 'setBox';
+  targetType: 'component' | 'individualPouch' | 'individualBox' | 'setBox';
   isFirstComponent?: boolean;
   productCategory?: ProductCategory;
   

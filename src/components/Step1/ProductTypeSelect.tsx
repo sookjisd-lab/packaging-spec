@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormSection, FormGroup, CheckboxGroup, TextInput } from '../common';
+import { FormSection, FormGroup, CheckboxGroup, TextInput, Checkbox } from '../common';
 import { useFormStore } from '../../store/formStore';
 import type { ProductCategory } from '../../types';
 import { PRODUCT_CATEGORY_LABELS } from '../../types';
@@ -14,9 +14,10 @@ export const ProductTypeSelect: React.FC = () => {
     typeSelection,
     setProductCategories,
     setProductCategoryOther,
+    setHasIndividualPouch,
   } = useFormStore();
 
-  const { productConfig, productCategories, productCategoryOther } = typeSelection;
+  const { productConfig, productCategories, productCategoryOther, hasIndividualPouch = false } = typeSelection;
   
   // 기획세트는 구성품별로 제품유형을 선택하므로 이 섹션을 표시하지 않음
   if (productConfig === 'set') {
@@ -58,6 +59,14 @@ export const ProductTypeSelect: React.FC = () => {
           />
         </FormGroup>
       )}
+
+      <div className="mt-4">
+        <Checkbox
+          label="개별 파우치"
+          checked={hasIndividualPouch}
+          onChange={(checked) => setHasIndividualPouch(checked)}
+        />
+      </div>
     </FormSection>
   );
 };
