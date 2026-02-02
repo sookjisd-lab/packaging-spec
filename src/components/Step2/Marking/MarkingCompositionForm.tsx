@@ -48,10 +48,13 @@ const manufactureDateOptions = Object.entries(MANUFACTURE_DATE_FORMAT_LABELS).ma
   label,
 }));
 
-const expiryBasisOptions = Object.entries(EXPIRY_BASIS_LABELS).map(([value, label]) => ({
-  value: value as ExpiryBasis,
-  label,
-}));
+const expiryBasisOptions = [
+  { value: '' as ExpiryBasis, label: '선택하세요' },
+  ...Object.entries(EXPIRY_BASIS_LABELS).map(([value, label]) => ({
+    value: value as ExpiryBasis,
+    label,
+  })),
+];
 
 export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
   composition,
@@ -316,8 +319,8 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
           <FormGroup label="사용기한 기준">
             <Dropdown
               options={expiryBasisOptions}
-              value={composition.expiryBasis || 'bulkManufacture'}
-              onChange={(value) => onChange({ expiryBasis: value })}
+              value={composition.expiryBasis || ''}
+              onChange={(value) => onChange({ expiryBasis: value || undefined })}
             />
           </FormGroup>
           
@@ -325,7 +328,7 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
             <NumberInput
               value={composition.expiryMonths || 0}
               onChange={(value) => onChange({ expiryMonths: value })}
-              placeholder="36"
+              placeholder="입력필요"
               suffix="개월"
               min={1}
               max={120}

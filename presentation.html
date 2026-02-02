@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포장사양서 입력 시스템 - 업무 효율화 보고</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+        
+        :root {
+            --r-main-font: 'Noto Sans KR', sans-serif;
+            --r-heading-font: 'Noto Sans KR', sans-serif;
+            --r-main-color: #333;
+            --r-heading-color: #1a1a2e;
+            --r-link-color: #3b82f6;
+            --primary-blue: #3b82f6;
+            --primary-green: #10b981;
+            --primary-red: #ef4444;
+            --primary-orange: #f59e0b;
+        }
+        
+        .reveal {
+            font-family: var(--r-main-font);
+        }
+        
+        .reveal h1, .reveal h2, .reveal h3 {
+            font-weight: 700;
+            text-transform: none;
+        }
+        
+        .reveal h1 {
+            font-size: 2.5em;
+        }
+        
+        .reveal h2 {
+            font-size: 1.8em;
+            color: var(--primary-blue);
+        }
+        
+        .reveal h3 {
+            font-size: 1.3em;
+        }
+        
+        /* 표지 스타일 */
+        .title-slide {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .title-slide h1 {
+            color: white;
+            font-size: 2.8em;
+            margin-bottom: 0.3em;
+        }
+        
+        .title-slide .subtitle {
+            color: #94a3b8;
+            font-size: 1.3em;
+            font-weight: 300;
+        }
+        
+        .title-slide .date {
+            color: #64748b;
+            font-size: 1em;
+            margin-top: 2em;
+        }
+        
+        /* 문제점 강조 박스 */
+        .problem-box {
+            background: #fef2f2;
+            border-left: 4px solid var(--primary-red);
+            padding: 20px 25px;
+            margin: 15px 0;
+            text-align: left;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .problem-box h4 {
+            color: var(--primary-red);
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .problem-box p {
+            margin: 0;
+            color: #7f1d1d;
+            font-size: 0.9em;
+        }
+        
+        /* 솔루션 박스 */
+        .solution-box {
+            background: #ecfdf5;
+            border-left: 4px solid var(--primary-green);
+            padding: 20px 25px;
+            margin: 15px 0;
+            text-align: left;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .solution-box h4 {
+            color: var(--primary-green);
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .solution-box p {
+            margin: 0;
+            color: #065f46;
+            font-size: 0.9em;
+        }
+        
+        /* 비교 테이블 */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75em;
+            margin: 20px 0;
+        }
+        
+        .compare-table th {
+            background: var(--primary-blue);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .compare-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        
+        .compare-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        
+        .compare-table .as-is {
+            color: var(--primary-red);
+        }
+        
+        .compare-table .to-be {
+            color: var(--primary-green);
+            font-weight: 500;
+        }
+        
+        /* 수치 카드 */
+        .stat-cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .stat-card .number {
+            font-size: 3em;
+            font-weight: 900;
+            color: var(--primary-blue);
+            line-height: 1;
+        }
+        
+        .stat-card .number.green {
+            color: var(--primary-green);
+        }
+        
+        .stat-card .number.orange {
+            color: var(--primary-orange);
+        }
+        
+        .stat-card .label {
+            font-size: 0.9em;
+            color: #64748b;
+            margin-top: 10px;
+        }
+        
+        /* 3단계 플로우 */
+        .flow-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .flow-step {
+            background: white;
+            border-radius: 16px;
+            padding: 25px 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 180px;
+        }
+        
+        .flow-step .step-num {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            margin: 0 auto 15px;
+        }
+        
+        .flow-step h4 {
+            color: var(--r-heading-color);
+            margin: 0 0 8px 0;
+            font-size: 1.1em;
+        }
+        
+        .flow-step p {
+            color: #64748b;
+            font-size: 0.8em;
+            margin: 0;
+        }
+        
+        .flow-arrow {
+            font-size: 2em;
+            color: #cbd5e1;
+        }
+        
+        /* 기능 하이라이트 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-item {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            text-align: left;
+        }
+        
+        .feature-item .icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .feature-item h4 {
+            color: var(--r-heading-color);
+            margin: 0 0 10px 0;
+            font-size: 1em;
+        }
+        
+        .feature-item p {
+            color: #64748b;
+            font-size: 0.8em;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        /* 이미지 프레임 */
+        .screenshot-frame {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .screenshot-frame img {
+            border-radius: 8px;
+            max-width: 100%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 기대효과 리스트 */
+        .effect-list {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .effect-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .effect-item .check {
+            width: 30px;
+            height: 30px;
+            background: var(--primary-green);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+        
+        .effect-item .content h4 {
+            margin: 0 0 5px 0;
+            color: var(--r-heading-color);
+            font-size: 1em;
+        }
+        
+        .effect-item .content p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.85em;
+        }
+        
+        /* 마무리 슬라이드 */
+        .ending-slide {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .ending-slide h2 {
+            color: white;
+            font-size: 2.2em;
+        }
+        
+        .ending-slide p {
+            color: #94a3b8;
+            font-size: 1.2em;
+        }
+        
+        /* 비교 이미지 */
+        .comparison-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .comparison-side {
+            flex: 1;
+            max-width: 45%;
+        }
+        
+        .comparison-side h4 {
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .comparison-side.before h4 {
+            background: #fef2f2;
+            color: var(--primary-red);
+        }
+        
+        .comparison-side.after h4 {
+            background: #ecfdf5;
+            color: var(--primary-green);
+        }
+        
+        /* 시간 비교 차트 */
+        .time-chart {
+            max-width: 700px;
+            margin: 30px auto;
+        }
+        
+        .time-bar {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .time-bar .label {
+            width: 150px;
+            text-align: right;
+            padding-right: 15px;
+            font-size: 0.85em;
+            color: #64748b;
+        }
+        
+        .time-bar .bar-container {
+            flex: 1;
+            height: 35px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .time-bar .bar {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+            border-radius: 8px;
+        }
+        
+        .time-bar .bar.before {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+        
+        .time-bar .bar.after {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .stat-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .flow-steps {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-container {
+                flex-direction: column;
+            }
+            
+            .comparison-side {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- 슬라이드 1: 표지 -->
+            <section class="title-slide" data-background-color="#1a1a2e">
+                <h1>포장사양서 입력 시스템</h1>
+                <p class="subtitle">업무 효율화 및 표준화 보고</p>
+                <p class="date">2025년 2월</p>
+            </section>
+            
+            <!-- 슬라이드 2: 목차 -->
+            <section>
+                <h2>목차</h2>
+                <div style="text-align: left; max-width: 600px; margin: 40px auto; font-size: 1.1em; line-height: 2;">
+                    <p><strong>1.</strong> 배경 및 현황</p>
+                    <p><strong>2.</strong> 기존 방식의 문제점</p>
+                    <p><strong>3.</strong> 새 시스템 소개</p>
+                    <p><strong>4.</strong> 주요 개선 기능</p>
+                    <p><strong>5.</strong> 기대 효과</p>
+                    <p><strong>6.</strong> 향후 계획</p>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 3: 배경 -->
+            <section>
+                <h2>1. 배경 및 현황</h2>
+                <div class="problem-box">
+                    <h4>현재 상황</h4>
+                    <p>포장사양서 작성 시 <strong>엑셀 공양식</strong>을 사용하여 고객사와 사양 협의 진행</p>
+                </div>
+                <div class="problem-box">
+                    <h4>주요 Pain Point</h4>
+                    <p>• 단순 체크박스 형식으로 <strong>구성품 간 관계 파악 어려움</strong><br>
+                       • 필수 정보 누락으로 <strong>반복적인 고객사 확인</strong> 필요<br>
+                       • 세트 상품의 경우 <strong>개별 구성품 상세 입력 불가</strong></p>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 4: 기존 양식 문제점 -->
+            <section>
+                <h2>2. 기존 방식의 문제점</h2>
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">문제 영역</th>
+                            <th style="width: 75%">상세 내용</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>평면적 구조</strong></td>
+                            <td class="as-is">파우치/단상자/아웃박스가 별개 섹션으로 분리 → 어떤 구성품의 파우치인지 불명확</td>
+                        </tr>
+                        <tr>
+                            <td><strong>세트 구성품</strong></td>
+                            <td class="as-is">"구성품 2개 이상" 체크만 가능 → 개별 구성품 상세 설정 불가</td>
+                        </tr>
+                        <tr>
+                            <td><strong>제품 유형별 분기</strong></td>
+                            <td class="as-is">튜브/마스크/샤셰 등 유형별 필수항목이 다른데 동일 양식 사용</td>
+                        </tr>
+                        <tr>
+                            <td><strong>필수 정보 안내</strong></td>
+                            <td class="as-is">"사진 첨부해주세요" 등 주석으로만 안내 → 누락 빈번</td>
+                        </tr>
+                        <tr>
+                            <td><strong>커뮤니케이션</strong></td>
+                            <td class="as-is">빠진 정보 확인을 위해 고객사와 2~3회 추가 소통 필요</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- 슬라이드 5: 새 시스템 소개 -->
+            <section>
+                <h2>3. 새 시스템 소개</h2>
+                <p style="color: #64748b; margin-bottom: 10px;">직관적인 3단계 입력 플로우</p>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="step-num">1</div>
+                        <h4>유형 선택</h4>
+                        <p>제품 구성<br>제품 유형<br>포장재 선택</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="step-num">2</div>
+                        <h4>내용 입력</h4>
+                        <p>착인 방법<br>라벨 정보<br>적재 방법</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="step-num">3</div>
+                        <h4>미리보기</h4>
+                        <p>전체 확인<br>PDF 출력<br>Excel 내보내기</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 6: 주요 기능 1 - 구성품 기반 -->
+            <section>
+                <h2>4-1. 구성품 기반 구조화</h2>
+                <div class="comparison-container">
+                    <div class="comparison-side before">
+                        <h4>❌ 기존 방식</h4>
+                        <div style="background: white; padding: 20px; border-radius: 8px; font-size: 0.7em; text-align: left;">
+                            <p>☐ 파우치 - ABC</p>
+                            <p>☐ 단상자 - ABC</p>
+                            <p>☐ 아웃박스 - 제품명</p>
+                            <p style="color: #ef4444; margin-top: 15px;">→ 어떤 구성품의 파우치/단상자인지 불명확</p>
+                        </div>
+                    </div>
+                    <div class="comparison-side after">
+                        <h4>✓ 새 시스템</h4>
+                        <div style="background: white; padding: 20px; border-radius: 8px; font-size: 0.7em; text-align: left;">
+                            <p><span style="background: #dbeafe; padding: 2px 8px; border-radius: 4px;">구성품</span> <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px;">튜브</span> 스킨</p>
+                            <p><span style="background: #dbeafe; padding: 2px 8px; border-radius: 4px;">구성품</span> <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px;">튜브</span> <span style="background: #f3f4f6; padding: 2px 8px; border-radius: 4px;">파우치</span> 스킨</p>
+                            <p><span style="background: #dbeafe; padding: 2px 8px; border-radius: 4px;">구성품</span> <span style="background: #fef3c7; padding: 2px 8px; border-radius: 4px;">기초</span> 로션</p>
+                            <p style="color: #10b981; margin-top: 15px;">→ 구성품-유형-포장 관계가 명확</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 7: 주요 기능 2 - 자동 동기화 -->
+            <section>
+                <h2>4-2. 착인 구성 자동 동기화</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="icon">🔄</div>
+                        <h4>첫 구성품 설정 → 전체 자동 적용</h4>
+                        <p>구성품1의 착인 구성(관리번호, 사용기한 등)을 설정하면<br>
+                           나머지 구성품에 자동으로 동일 설정 적용</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">✏️</div>
+                        <h4>개별 수정 시 동기화 해제</h4>
+                        <p>특정 구성품만 다르게 설정해야 할 경우<br>
+                           해당 항목 수정 시 자동으로 동기화 해제</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">📋</div>
+                        <h4>직접입력 라벨 동기화</h4>
+                        <p>첫 번째 포장재의 '직접입력' 설정이<br>
+                           다음 포장재에 자동 적용</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">⚡</div>
+                        <h4>반복 입력 최소화</h4>
+                        <p>세트 5종 구성품도 한 번 설정으로<br>
+                           전체 착인 구성 완료</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 8: 주요 기능 3 - 제품 유형별 -->
+            <section>
+                <h2>4-3. 제품 유형별 맞춤 설정</h2>
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>제품 유형</th>
+                            <th>자동 적용 기본값</th>
+                            <th>추가 UI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>튜브</strong></td>
+                            <td>착인방법: 각인 / 위치: 실링면</td>
+                            <td>커팅 모양, 커팅 길이, 전면/후면 선택</td>
+                        </tr>
+                        <tr>
+                            <td><strong>마스크</strong></td>
+                            <td>착인방법: 각인 / 위치: 후면 하단</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>샤셰</strong></td>
+                            <td>착인방법: 코딩 / 위치: 후면 하단</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>기초/쿠션 등</strong></td>
+                            <td>착인방법: 코딩 / 위치: 하면</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="solution-box" style="margin-top: 30px;">
+                    <h4>효과</h4>
+                    <p>담당자가 제품 유형별 규칙을 외울 필요 없이, 시스템이 자동으로 적절한 기본값 설정</p>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 9: 정량적 효과 -->
+            <section>
+                <h2>5-1. 예상 효과 (정량)</h2>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="number green">70%</div>
+                        <div class="label">작성 시간 단축</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number orange">80%</div>
+                        <div class="label">추가 확인 감소</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">95%</div>
+                        <div class="label">정보 누락 방지</div>
+                    </div>
+                </div>
+                <div class="time-chart">
+                    <div class="time-bar">
+                        <div class="label">단품 (기본)</div>
+                        <div class="bar-container">
+                            <div class="bar before" style="width: 100%;">기존 10~15분</div>
+                        </div>
+                    </div>
+                    <div class="time-bar">
+                        <div class="label"></div>
+                        <div class="bar-container">
+                            <div class="bar after" style="width: 35%;">개선 3~5분</div>
+                        </div>
+                    </div>
+                    <div class="time-bar" style="margin-top: 25px;">
+                        <div class="label">세트 3종 + 파우치</div>
+                        <div class="bar-container">
+                            <div class="bar before" style="width: 100%;">기존 30~40분</div>
+                        </div>
+                    </div>
+                    <div class="time-bar">
+                        <div class="label"></div>
+                        <div class="bar-container">
+                            <div class="bar after" style="width: 30%;">개선 8~12분</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 10: 기대 효과 -->
+            <section>
+                <h2>5-2. 기대 효과 (정성)</h2>
+                <div class="effect-list">
+                    <div class="effect-item">
+                        <div class="check">✓</div>
+                        <div class="content">
+                            <h4>업무 표준화</h4>
+                            <p>담당자별 작성 품질 편차 해소, 일관된 사양서 품질 확보</p>
+                        </div>
+                    </div>
+                    <div class="effect-item">
+                        <div class="check">✓</div>
+                        <div class="content">
+                            <h4>신규 담당자 적응 시간 단축</h4>
+                            <p>제품 유형별 규칙을 시스템이 자동 적용 → 학습 곡선 완화</p>
+                        </div>
+                    </div>
+                    <div class="effect-item">
+                        <div class="check">✓</div>
+                        <div class="content">
+                            <h4>고객사 커뮤니케이션 효율화</h4>
+                            <p>필수 정보 UI 제공으로 초기 전달 정보 완성도 향상</p>
+                        </div>
+                    </div>
+                    <div class="effect-item">
+                        <div class="check">✓</div>
+                        <div class="content">
+                            <h4>오류 감소</h4>
+                            <p>자동 동기화로 복사-붙여넣기 실수 방지, 구성품 누락 방지</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 11: 향후 계획 -->
+            <section>
+                <h2>6. 향후 계획</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="icon">💾</div>
+                        <h4>데이터베이스 연동</h4>
+                        <p>작성한 사양서 저장 및 이력 관리<br>
+                           과거 사양서 검색 및 재활용</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">👥</div>
+                        <h4>고객사 직접 입력</h4>
+                        <p>고객사가 직접 웹에서 사양 입력<br>
+                           실시간 협업 및 확인</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">📊</div>
+                        <h4>통계 및 분석</h4>
+                        <p>제품 유형별 사양 현황 분석<br>
+                           자주 사용되는 설정 파악</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">🔗</div>
+                        <h4>기간 시스템 연동</h4>
+                        <p>ERP, MES 등과 데이터 연계<br>
+                           생산 지시 자동화</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 슬라이드 12: 마무리 -->
+            <section class="ending-slide" data-background-color="#1a1a2e">
+                <h2>감사합니다</h2>
+                <p style="margin-top: 40px;">Q&A</p>
+            </section>
+            
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            transition: 'slide',
+            transitionSpeed: 'default',
+            backgroundTransition: 'fade',
+            center: true,
+            controls: true,
+            progress: true,
+            history: true,
+            keyboard: true,
+            overview: true,
+            touch: true,
+            loop: false,
+            rtl: false,
+            shuffle: false,
+            fragments: true,
+            embedded: false,
+            help: true,
+            showNotes: false,
+            autoPlayMedia: null,
+            autoSlide: 0,
+            mouseWheel: false,
+            hideInactiveCursor: true,
+            hideCursorTime: 5000,
+            width: 1200,
+            height: 700,
+            margin: 0.1,
+        });
+    </script>
+</body>
+</html>

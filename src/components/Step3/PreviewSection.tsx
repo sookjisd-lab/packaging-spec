@@ -14,7 +14,124 @@ import {
   LABEL_COUNT_LABELS,
   BOX_TAPING_LABELS,
   PALETTE_TYPE_LABELS,
+  TUBE_MARKING_SIDE_LABELS,
 } from '../../types';
+import type { MarkingComposition, MarkingFormData } from '../../types';
+
+const getMarkingPreviewLines = (composition: MarkingComposition, isTubeEngraving: boolean): string[] => {
+  if (isTubeEngraving) {
+    const frontItems: string[] = [];
+    const backItems: string[] = [];
+    
+    const addItem = (side: 'front' | 'back' | undefined, format: string) => {
+      if (side === 'front') frontItems.push(format);
+      else backItems.push(format);
+    };
+    
+    if (composition.hasManagementNumber) {
+      let format = '';
+      if (composition.managementNumberType === 'cosmax') {
+        format = composition.cosmaxNumberFormat === 'LOT_ABC' ? 'LOT ABC' : (composition.cosmaxNumberFormat || 'ABC');
+      } else {
+        format = composition.clientNumberDescription || '고객사관리번호';
+      }
+      addItem(composition.managementNumberSide, format);
+    }
+    
+    if (composition.hasExpiryDate) {
+      let format = '';
+      if (composition.expiryDateFormat === 'other') {
+        format = composition.expiryDateCustom || '사용기한';
+      } else {
+        format = EXPIRY_DATE_FORMAT_LABELS[composition.expiryDateFormat || 'YYYYMMDD'];
+      }
+      addItem(composition.expiryDateSide, format);
+    }
+    
+    if (composition.hasManufactureDate) {
+      let format = '';
+      if (composition.manufactureDateFormat === 'other') {
+        format = composition.manufactureDateCustom || '제조일자';
+      } else {
+        format = MANUFACTURE_DATE_FORMAT_LABELS[composition.manufactureDateFormat || 'YYYYMMDD_MFG'];
+      }
+      addItem(composition.manufactureDateSide, format);
+    }
+    
+    if (composition.hasOther) {
+      addItem(composition.otherSide, composition.otherDescription || '기타');
+    }
+    
+    const lines: string[] = [];
+    if (frontItems.length > 0) {
+      lines.push(`${TUBE_MARKING_SIDE_LABELS.front} : ${frontItems.join(' ')}`);
+    }
+    if (backItems.length > 0) {
+      lines.push(`${TUBE_MARKING_SIDE_LABELS.back} : ${backItems.join(' ')}`);
+    }
+    return lines;
+  }
+  
+  const items: { line: number; format: string }[] = [];
+  
+  if (composition.hasManagementNumber) {
+    let format = '';
+    if (composition.managementNumberType === 'cosmax') {
+      format = composition.cosmaxNumberFormat === 'LOT_ABC' ? 'LOT ABC' : (composition.cosmaxNumberFormat || 'ABC');
+    } else {
+      format = composition.clientNumberDescription || '고객사관리번호';
+    }
+    items.push({ line: composition.managementNumberLine || 1, format });
+  }
+  
+  if (composition.hasExpiryDate) {
+    let format = '';
+    if (composition.expiryDateFormat === 'other') {
+      format = composition.expiryDateCustom || '사용기한';
+    } else {
+      format = EXPIRY_DATE_FORMAT_LABELS[composition.expiryDateFormat || 'YYYYMMDD'];
+    }
+    items.push({ line: composition.expiryDateLine || 1, format });
+  }
+  
+  if (composition.hasManufactureDate) {
+    let format = '';
+    if (composition.manufactureDateFormat === 'other') {
+      format = composition.manufactureDateCustom || '제조일자';
+    } else {
+      format = MANUFACTURE_DATE_FORMAT_LABELS[composition.manufactureDateFormat || 'YYYYMMDD_MFG'];
+    }
+    items.push({ line: composition.manufactureDateLine || 1, format });
+  }
+  
+  if (composition.hasOther) {
+    items.push({ line: composition.otherLine || 1, format: composition.otherDescription || '기타' });
+  }
+  
+  if (items.length === 0) return [];
+  
+  const maxLine = Math.max(...items.map(i => i.line));
+  const lines: string[] = [];
+  
+  for (let lineNum = 1; lineNum <= maxLine; lineNum++) {
+    const lineItems = items.filter(i => i.line === lineNum);
+    if (lineItems.length > 0) {
+      lines.push(lineItems.map(i => i.format).join(' '));
+    }
+  }
+  
+  return lines;
+};
+
+const getTargetTypeLabel = (type: MarkingFormData['targetType']): string => {
+  switch (type) {
+    case 'component': return '구성품';
+    case 'individualPouch': return '파우치';
+    case 'individualBox': return '단상자';
+    case 'setBox': return '세트상자';
+    default: return '';
+  }
+};
 
 export const PreviewSection: React.FC = () => {
   const {
@@ -107,92 +224,74 @@ export const PreviewSection: React.FC = () => {
         <h2 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300">
           3. 착인 정보
         </h2>
-        {markingForms.map((form, index) => (
-          <div key={form.id} className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-800 mb-3">
-              {index + 1}. {form.targetName}
-              <span className="ml-2 text-sm font-normal text-gray-500">
-                ({form.targetType === 'component' ? '구성품' : form.targetType === 'individualBox' ? '단상자' : '세트상자'})
-              </span>
-            </h3>
-            <table className="w-full text-sm">
-              <tbody>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-gray-600 w-1/4">착인 방법</td>
-                  <td className="py-1">
-                    {form.method === 'other' ? form.methodOther : MARKING_METHOD_LABELS[form.method]}
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-gray-600">착인 위치</td>
-                  <td className="py-1">
-                    {form.position === 'other' ? form.positionOther : MARKING_POSITION_LABELS[form.position]}
-                  </td>
-                </tr>
-                {form.composition.hasManagementNumber && (
+        {markingForms.map((form, index) => {
+          const isTube = form.productCategory === 'tube';
+          const isTubeEngraving = isTube && form.method === 'engraving' && form.position === 'sealingFace';
+          const previewLines = getMarkingPreviewLines(form.composition, isTubeEngraving);
+          
+          return (
+            <div key={form.id} className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-semibold text-gray-800 mb-3">
+                {index + 1}. {form.targetName}
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  ({getTargetTypeLabel(form.targetType)})
+                </span>
+              </h3>
+              <table className="w-full text-sm">
+                <tbody>
                   <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">관리번호 ({form.composition.managementNumberLine || 1}번째 줄)</td>
+                    <td className="py-1 text-gray-600 w-1/4">착인 방법</td>
                     <td className="py-1">
-                      {form.composition.managementNumberType === 'cosmax' 
-                        ? `코스맥스관리번호 (${form.composition.cosmaxNumberFormat})`
-                        : `고객사관리번호: ${form.composition.clientNumberDescription}`}
+                      {form.method === 'other' ? form.methodOther : MARKING_METHOD_LABELS[form.method]}
                     </td>
                   </tr>
-                )}
-                {form.composition.hasExpiryDate && (
                   <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">사용기한 ({form.composition.expiryDateLine || 1}번째 줄)</td>
+                    <td className="py-1 text-gray-600">착인 위치</td>
                     <td className="py-1">
-                      {form.composition.expiryDateFormat === 'other' 
-                        ? form.composition.expiryDateCustom 
-                        : EXPIRY_DATE_FORMAT_LABELS[form.composition.expiryDateFormat!]}
+                      {form.position === 'other' ? form.positionOther : MARKING_POSITION_LABELS[form.position]}
                     </td>
                   </tr>
-                )}
-                {form.composition.hasManufactureDate && (
-                  <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">제조일자 ({form.composition.manufactureDateLine || 1}번째 줄)</td>
-                    <td className="py-1">
-                      {form.composition.manufactureDateFormat === 'other' 
-                        ? form.composition.manufactureDateCustom 
-                        : MANUFACTURE_DATE_FORMAT_LABELS[form.composition.manufactureDateFormat!]}
-                    </td>
-                  </tr>
-                )}
-                {form.composition.hasOther && (
-                  <tr className="border-b border-gray-200">
-                    <td className="py-1 text-gray-600">기타 ({form.composition.otherLine || 1}번째 줄)</td>
-                    <td className="py-1">{form.composition.otherDescription}</td>
-                  </tr>
-                )}
-                {(form.composition.hasExpiryDate || form.composition.hasManufactureDate) && (
-                  <>
-                    <tr className="border-b border-gray-200">
-                      <td className="py-1 text-gray-600">사용기한 기준</td>
-                      <td className="py-1">
-                        {form.composition.expiryBasis ? EXPIRY_BASIS_LABELS[form.composition.expiryBasis] : '-'}
-                      </td>
-                    </tr>
-                    <tr className="border-b border-gray-200">
-                      <td className="py-1 text-gray-600">사용기한 개월수</td>
-                      <td className="py-1">{form.composition.expiryMonths || '-'}개월</td>
-                    </tr>
-                  </>
-                )}
-              </tbody>
-            </table>
-            {form.positionImage && (
-              <div className="mt-3">
-                <p className="text-sm text-gray-600 mb-1">착인 위치 이미지:</p>
-                <img 
-                  src={form.positionImage} 
-                  alt="착인 위치"
-                  className="w-32 h-32 object-cover border border-gray-200 rounded"
-                />
-              </div>
-            )}
-          </div>
-        ))}
+                  {(form.composition.hasExpiryDate || form.composition.hasManufactureDate) && (
+                    <>
+                      <tr className="border-b border-gray-200">
+                        <td className="py-1 text-gray-600">사용기한 기준</td>
+                        <td className="py-1">
+                          {form.composition.expiryBasis ? EXPIRY_BASIS_LABELS[form.composition.expiryBasis] : '미설정'}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-gray-200">
+                        <td className="py-1 text-gray-600">사용기한 개월수</td>
+                        <td className="py-1">{form.composition.expiryMonths ? `${form.composition.expiryMonths}개월` : '미설정'}</td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+              
+              {previewLines.length > 0 && (
+                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-sm text-green-800 font-medium mb-2">착인 양식:</p>
+                  <div className="font-mono text-sm text-green-700 bg-white p-2 rounded border border-green-100">
+                    {previewLines.map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {form.positionImage && (
+                <div className="mt-3">
+                  <p className="text-sm text-gray-600 mb-1">착인 위치 이미지:</p>
+                  <img 
+                    src={form.positionImage} 
+                    alt="착인 위치"
+                    className="w-32 h-32 object-cover border border-gray-200 rounded"
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </section>
 
       {/* 4. 라벨 정보 */}
