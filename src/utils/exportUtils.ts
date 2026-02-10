@@ -1,8 +1,32 @@
 import type { PackagingSpecificationData } from '../types';
 
-// ============================================
-// PDF 내보내기
-// ============================================
+const applyComputedStylesToClone = (original: Element, clone: Element) => {
+  const computed = window.getComputedStyle(original);
+  const cloneEl = clone as HTMLElement;
+  
+  const importantProps = [
+    'color', 'background-color', 'background', 'border-color',
+    'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color',
+    'font-family', 'font-size', 'font-weight', 'line-height', 'text-align',
+    'padding', 'margin', 'display', 'flex-direction', 'align-items', 'justify-content',
+    'width', 'height', 'border', 'border-radius', 'box-shadow'
+  ];
+  
+  importantProps.forEach((prop) => {
+    const value = computed.getPropertyValue(prop);
+    if (value) {
+      cloneEl.style.setProperty(prop, value);
+    }
+  });
+  
+  const originalChildren = original.children;
+  const cloneChildren = clone.children;
+  for (let i = 0; i < originalChildren.length; i++) {
+    if (cloneChildren[i]) {
+      applyComputedStylesToClone(originalChildren[i], cloneChildren[i]);
+    }
+  }
+};
 
 export const exportToPDF = async (_data: PackagingSpecificationData): Promise<void> => {
   const element = document.getElementById('preview-content');
@@ -12,7 +36,6 @@ export const exportToPDF = async (_data: PackagingSpecificationData): Promise<vo
   }
 
   try {
-    // html2pdf.js 동적 import
     const html2pdfModule = await import('html2pdf.js');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const html2pdf = (html2pdfModule.default || html2pdfModule) as any;
@@ -25,6 +48,15 @@ export const exportToPDF = async (_data: PackagingSpecificationData): Promise<vo
         scale: 2,
         useCORS: true,
         logging: false,
+        onclone: (clonedDoc: Document) => {
+          const clonedElement = clonedDoc.getElementById('preview-content');
+          if (clonedElement && element) {
+            applyComputedStylesToClone(element, clonedElement);
+          }
+          
+          const styleSheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style');
+          styleSheets.forEach((sheet) => sheet.remove());
+        },
       },
       jsPDF: { 
         unit: 'mm', 
