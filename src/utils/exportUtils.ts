@@ -20,11 +20,10 @@ export const exportToPDF = async (_data: PackagingSpecificationData): Promise<vo
     const opt = {
       margin: 10,
       filename: `포장사양서_${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: 'jpeg', quality: 0.95 },
       html2canvas: { 
         scale: 2,
         useCORS: true,
-        letterRendering: true,
         logging: false,
       },
       jsPDF: { 
@@ -32,10 +31,12 @@ export const exportToPDF = async (_data: PackagingSpecificationData): Promise<vo
         format: 'a4', 
         orientation: 'portrait'
       },
-      pagebreak: { mode: 'avoid-all' },
     };
 
-    await html2pdf().set(opt).from(element).save();
+    await html2pdf()
+      .from(element)
+      .set(opt)
+      .save();
   } catch (error) {
     console.error('PDF 내보내기 실패:', error);
     alert('PDF 내보내기에 실패했습니다. 다시 시도해주세요.');
