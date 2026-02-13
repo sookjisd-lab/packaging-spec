@@ -48,13 +48,10 @@ const manufactureDateOptions = Object.entries(MANUFACTURE_DATE_FORMAT_LABELS).ma
   label,
 }));
 
-const expiryBasisOptions = [
-  { value: '' as ExpiryBasis, label: '선택하세요' },
-  ...Object.entries(EXPIRY_BASIS_LABELS).map(([value, label]) => ({
-    value: value as ExpiryBasis,
-    label,
-  })),
-];
+const expiryBasisOptions = Object.entries(EXPIRY_BASIS_LABELS).map(([value, label]) => ({
+  value: value as ExpiryBasis,
+  label,
+}));
 
 export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
   composition,
