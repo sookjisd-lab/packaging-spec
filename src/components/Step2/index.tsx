@@ -7,19 +7,32 @@ import { AdditionalRequests } from './AdditionalRequests';
 import { useFormStore } from '../../store/formStore';
 
 export const Step2ContentInput: React.FC = () => {
-  const { prevStep, nextStep, markingForms } = useFormStore();
+  const { prevStep, nextStep } = useFormStore();
 
   const handleNextStep = () => {
-    // 1. 관리번호 필수 체크
-    const hasUncheckedManagementNumber = markingForms.some(
-      (form) => !form.composition.hasManagementNumber
+    const { markingForms } = useFormStore.getState();
+
+    // 1. 관리번호 필수 체크 (체크 여부 + 유형 선택 여부)
+    const hasIncompleteManagementNumber = markingForms.some(
+      (form) => !form.composition.hasManagementNumber || !form.composition.managementNumberType
     );
-    if (hasUncheckedManagementNumber) {
+    if (hasIncompleteManagementNumber) {
       alert('관리번호 표기는 필수 사항입니다. 체크 후 선택 부탁드립니다');
       return;
     }
 
-    // 2. 제조일자만 체크, 사용기한 미체크 경고
+    // 2. 사용기한/제조일자 둘 다 미체크 경고
+    const hasNoDateChecked = markingForms.some(
+      (form) => !form.composition.hasExpiryDate && !form.composition.hasManufactureDate
+    );
+    if (hasNoDateChecked) {
+      const confirmed = window.confirm(
+        '내수제품의 경우에는 사용기한 표기, \'까지\' 문구가 필수입니다.\n해당 문제 상관없는 전량 수출 제품이라면 확인, 내수제품이라 사용기한 추가가 필요하다면 취소 입력 부탁드립니다'
+      );
+      if (!confirmed) return;
+    }
+
+    // 3. 제조일자만 체크, 사용기한 미체크 경고
     const hasOnlyManufactureDate = markingForms.some(
       (form) => form.composition.hasManufactureDate && !form.composition.hasExpiryDate
     );

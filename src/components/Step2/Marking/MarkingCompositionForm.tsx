@@ -34,7 +34,7 @@ const managementNumberOptions = [
 ];
 
 const cosmaxFormatOptions = [
-  { value: 'ABC' as CosmaxNumberFormat, label: 'ABC' },
+  { value: 'ABC' as CosmaxNumberFormat, label: 'ABC (기본)' },
   { value: 'LOT_ABC' as CosmaxNumberFormat, label: 'LOT ABC' },
 ];
 
