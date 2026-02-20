@@ -7,7 +7,52 @@ import { AdditionalRequests } from './AdditionalRequests';
 import { useFormStore } from '../../store/formStore';
 
 export const Step2ContentInput: React.FC = () => {
-  const { prevStep, nextStep } = useFormStore();
+  const { prevStep, nextStep, markingForms } = useFormStore();
+
+  const handleNextStep = () => {
+    // 1. 관리번호 필수 체크
+    const hasUncheckedManagementNumber = markingForms.some(
+      (form) => !form.composition.hasManagementNumber
+    );
+    if (hasUncheckedManagementNumber) {
+      alert('관리번호 표기는 필수 사항입니다. 체크 후 선택 부탁드립니다');
+      return;
+    }
+
+    // 2. 제조일자만 체크, 사용기한 미체크 경고
+    const hasOnlyManufactureDate = markingForms.some(
+      (form) => form.composition.hasManufactureDate && !form.composition.hasExpiryDate
+    );
+    if (hasOnlyManufactureDate) {
+      const confirmed = window.confirm(
+        '내수 제품의 경우, 사용기한 없이 제조일자만 착인하려면, 제품에 PAO마크(개봉마크)가 있어야합니다.'
+      );
+      if (!confirmed) return;
+    }
+
+    // 3. 사용기한 '까지' / 제조일자 '제조' 문구 누락 경고
+    const hasMissingSuffix = markingForms.some((form) => {
+      const { composition } = form;
+      if (composition.hasExpiryDate) {
+        if (composition.expiryDateFormat === 'EXP_YYYYMMDD') return true;
+        if (composition.expiryDateFormat === 'other' &&
+          !composition.expiryDateCustom?.includes('까지')) return true;
+      }
+      if (composition.hasManufactureDate) {
+        if (composition.manufactureDateFormat === 'other' &&
+          !composition.manufactureDateCustom?.includes('제조')) return true;
+      }
+      return false;
+    });
+    if (hasMissingSuffix) {
+      const confirmed = window.confirm(
+        '내수 제품의 경우, 제조일자와 사용기한 뒤에 \'까지\', \'제조\'문구가 필수 입니다.'
+      );
+      if (!confirmed) return;
+    }
+
+    nextStep();
+  };
 
   return (
     <div>
@@ -33,10 +78,10 @@ export const Step2ContentInput: React.FC = () => {
           </svg>
           이전 단계로
         </button>
-        
+
         <button
           type="button"
-          onClick={nextStep}
+          onClick={handleNextStep}
           className="btn-primary"
         >
           미리보기 및 출력

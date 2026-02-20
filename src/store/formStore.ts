@@ -421,7 +421,7 @@ export const useFormStore = create<FormState>()(
           packagingMaterialType: material.type,
           packagingMaterialName: material.customName || material.type,
           formatType: undefined,
-          attachPosition: 'shortSide',
+          attachPosition: material.type === 'innerBox' ? 'top' : 'shortSide',
           attachCount: 'single',
           hasTaping: material.type !== 'zipperBag',
           tapingType: 'straight',
