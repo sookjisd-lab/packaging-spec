@@ -1,32 +1,123 @@
 import type { PackagingSpecificationData } from '../types';
 
-const applyComputedStylesToClone = (original: Element, clone: Element) => {
-  const computed = window.getComputedStyle(original);
-  const cloneEl = clone as HTMLElement;
-  
-  const importantProps = [
-    'color', 'background-color', 'background', 'border-color',
-    'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color',
-    'font-family', 'font-size', 'font-weight', 'line-height', 'text-align',
-    'padding', 'margin', 'display', 'flex-direction', 'align-items', 'justify-content',
-    'width', 'height', 'border', 'border-radius', 'box-shadow'
-  ];
-  
-  importantProps.forEach((prop) => {
-    const value = computed.getPropertyValue(prop);
-    if (value) {
-      cloneEl.style.setProperty(prop, value);
-    }
-  });
-  
-  const originalChildren = original.children;
-  const cloneChildren = clone.children;
-  for (let i = 0; i < originalChildren.length; i++) {
-    if (cloneChildren[i]) {
-      applyComputedStylesToClone(originalChildren[i], cloneChildren[i]);
-    }
+const PDF_STYLES = `
+  #preview-content {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background-color: #ffffff;
+    padding: 32px;
+    color: #111827;
+    font-size: 14px;
+    line-height: 1.5;
   }
-};
+  #preview-content h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  #preview-content h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #d1d5db;
+  }
+  #preview-content h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+  }
+  #preview-content h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+  #preview-content p {
+    color: #6b7280;
+    font-size: 14px;
+  }
+  #preview-content section {
+    margin-bottom: 32px;
+  }
+  #preview-content table {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+  }
+  #preview-content table tr {
+    border-bottom: 1px solid #e5e7eb;
+  }
+  #preview-content table td {
+    padding: 8px 0;
+  }
+  #preview-content table td:first-child {
+    font-weight: 500;
+    color: #4b5563;
+    width: 25%;
+  }
+  #preview-content .bg-gray-50 {
+    background-color: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  #preview-content .bg-green-50 {
+    background-color: #f0fdf4;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #bbf7d0;
+    margin-top: 12px;
+  }
+  #preview-content .text-green-800 {
+    color: #166534;
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  #preview-content .text-green-700 {
+    color: #15803d;
+  }
+  #preview-content .bg-purple-50 {
+    background-color: #faf5ff;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e9d5ff;
+    margin-top: 24px;
+  }
+  #preview-content .text-purple-800 {
+    color: #6b21a8;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  #preview-content .text-purple-700 {
+    color: #7e22ce;
+  }
+  #preview-content .border-purple-200 {
+    border-color: #e9d5ff;
+  }
+  #preview-content .font-mono {
+    font-family: monospace;
+    background-color: #ffffff;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #dcfce7;
+  }
+  #preview-content .border-b-2 {
+    border-bottom: 2px solid #1f2937;
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+  }
+  #preview-content img {
+    max-width: 128px;
+    max-height: 128px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+  }
+`;
 
 export const exportToPDF = async (_data: PackagingSpecificationData): Promise<void> => {
   const element = document.getElementById('preview-content');
@@ -49,13 +140,12 @@ export const exportToPDF = async (_data: PackagingSpecificationData): Promise<vo
         useCORS: true,
         logging: false,
         onclone: (clonedDoc: Document) => {
-          const clonedElement = clonedDoc.getElementById('preview-content');
-          if (clonedElement && element) {
-            applyComputedStylesToClone(element, clonedElement);
-          }
+          const existingStyles = clonedDoc.querySelectorAll('link[rel="stylesheet"], style');
+          existingStyles.forEach((sheet) => sheet.remove());
           
-          const styleSheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style');
-          styleSheets.forEach((sheet) => sheet.remove());
+          const styleEl = clonedDoc.createElement('style');
+          styleEl.textContent = PDF_STYLES;
+          clonedDoc.head.appendChild(styleEl);
         },
       },
       jsPDF: { 

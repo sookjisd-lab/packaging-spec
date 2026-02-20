@@ -75,6 +75,7 @@ interface FormState {
   paletteLabel: PaletteLabelData;
   loadingMethod: LoadingMethodData;
   additionalRequest: AdditionalRequestData;
+  clientNumberScheme: string;
   
   // 저장된 문서 ID
   documentId: string | null;
@@ -125,6 +126,9 @@ interface FormState {
   addAdditionalRequestImage: (image: string) => void;
   removeAdditionalRequestImage: (index: number) => void;
   
+  // 고객사 관리번호 체계 액션
+  setClientNumberScheme: (value: string) => void;
+  
   // 전체 데이터 액션
   getFullData: () => PackagingSpecificationData;
   loadData: (data: PackagingSpecificationData) => void;
@@ -162,6 +166,7 @@ const initialState = {
     description: '',
     images: [],
   },
+  clientNumberScheme: '',
   documentId: null,
 };
 
@@ -557,6 +562,8 @@ export const useFormStore = create<FormState>()(
           images: state.additionalRequest.images.filter((_, i) => i !== index),
         },
       })),
+      
+      setClientNumberScheme: (value) => set({ clientNumberScheme: value }),
       
       // 전체 데이터 조회
       getFullData: (): PackagingSpecificationData => {

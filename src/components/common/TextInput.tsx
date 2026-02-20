@@ -47,6 +47,7 @@ interface TextAreaProps {
   disabled?: boolean;
   className?: string;
   rows?: number;
+  autoResize?: boolean;
 }
 
 export const TextArea: React.FC<TextAreaProps> = ({
@@ -56,15 +57,29 @@ export const TextArea: React.FC<TextAreaProps> = ({
   disabled = false,
   className = '',
   rows = 4,
+  autoResize = false,
 }) => {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  React.useEffect(() => {
+    if (autoResize && textareaRef.current) {
+      const textarea = textareaRef.current;
+      textarea.style.height = 'auto';
+      const lineHeight = parseInt(getComputedStyle(textarea).lineHeight) || 24;
+      const minHeight = lineHeight * rows;
+      textarea.style.height = `${Math.max(textarea.scrollHeight, minHeight)}px`;
+    }
+  }, [value, autoResize, rows]);
+
   return (
     <textarea
+      ref={textareaRef}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
       rows={rows}
-      className={`form-input resize-y ${className}`}
+      className={`form-input ${autoResize ? 'resize-none overflow-hidden' : 'resize-y'} ${className}`}
     />
   );
 };

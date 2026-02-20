@@ -1,10 +1,10 @@
 import React from 'react';
-import { FormSection } from '../../common';
+import { FormSection, TextArea } from '../../common';
 import { MarkingForm } from './MarkingForm';
 import { useFormStore } from '../../../store/formStore';
 
 export const MarkingSection: React.FC = () => {
-  const { markingForms, updateMarkingForm, updateMarkingComposition, typeSelection } = useFormStore();
+  const { markingForms, updateMarkingForm, updateMarkingComposition, typeSelection, clientNumberScheme, setClientNumberScheme } = useFormStore();
   const { productConfig } = typeSelection;
 
   const getConfigDescription = (): string => {
@@ -21,6 +21,7 @@ export const MarkingSection: React.FC = () => {
   };
 
   const showSyncHint = markingForms.length > 1;
+  const hasClientNumber = markingForms.some(form => form.composition.managementNumberType === 'client');
 
   return (
     <FormSection title="2. 착인 방법">
@@ -32,6 +33,19 @@ export const MarkingSection: React.FC = () => {
             💡 첫 번째 구성품의 착인 구성 설정이 나머지 항목에 자동으로 적용됩니다.
             (개별 항목 수정 시 해당 항목은 자동 동기화가 해제됩니다)
           </p>
+        </div>
+      )}
+
+      {hasClientNumber && (
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <label className="block text-sm font-medium text-gray-700 mb-2">고객사 관리번호 체계</label>
+          <TextArea
+            value={clientNumberScheme}
+            onChange={setClientNumberScheme}
+            placeholder="고객사 관리번호 체계를 입력해주세요"
+            rows={3}
+            autoResize
+          />
         </div>
       )}
 

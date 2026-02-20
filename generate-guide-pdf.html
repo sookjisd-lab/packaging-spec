@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>신제품 포장사양서 작성 시스템 - 사용자 가이드</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', 'Noto Color Emoji', sans-serif;
+    color: #1e293b;
+    line-height: 1.7;
+    font-size: 11pt;
+    background: #fff;
+  }
+
+  /* ── Page break helpers ── */
+  .page-break { page-break-after: always; }
+  .no-break { page-break-inside: avoid; }
+
+  /* ── Cover page ── */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0e7490 100%);
+    color: #fff;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: rgba(14,116,144,0.15);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    left: -20%;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .cover-icon {
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 36px;
+    font-size: 48px;
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  .cover h1 {
+    font-size: 32pt;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .cover h2 {
+    font-size: 16pt;
+    font-weight: 300;
+    opacity: 0.85;
+    margin-bottom: 48px;
+  }
+  .cover .version {
+    font-size: 10pt;
+    opacity: 0.5;
+    position: absolute;
+    bottom: 40px;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    padding: 60px;
+  }
+  .toc h2 {
+    font-size: 20pt;
+    color: #0e7490;
+    margin-bottom: 32px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #0e7490;
+  }
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px dotted #cbd5e1;
+    font-size: 11pt;
+  }
+  .toc-item .num { color: #0e7490; font-weight: 600; margin-right: 12px; }
+  .toc-item .title { flex: 1; }
+
+  /* ── Content ── */
+  .content {
+    padding: 40px 60px;
+  }
+
+  h2.section-title {
+    font-size: 18pt;
+    color: #0e7490;
+    margin: 40px 0 20px;
+    padding: 12px 20px;
+    background: linear-gradient(90deg, #ecfeff, #fff);
+    border-left: 5px solid #0e7490;
+    border-radius: 0 8px 8px 0;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 13pt;
+    color: #164e63;
+    margin: 28px 0 12px;
+    page-break-after: avoid;
+  }
+
+  h4 {
+    font-size: 11pt;
+    color: #1e293b;
+    margin: 20px 0 8px;
+    page-break-after: avoid;
+  }
+
+  p { margin: 8px 0; }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 10pt;
+  }
+  th {
+    background: #0e7490;
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 500;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* ── Info boxes ── */
+  .info-box {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 14px 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  .info-box.tip {
+    background: #ecfdf5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+  }
+  .info-box.tip::before { content: '💡 TIP   '; font-weight: 700; }
+  .info-box.warn {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+  }
+  .info-box.warn::before { content: '⚠️ 주의   '; font-weight: 700; }
+  .info-box.note {
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+    color: #1e40af;
+  }
+  .info-box.note::before { content: '📌 참고   '; font-weight: 700; }
+
+  /* ── Diagram containers ── */
+  .diagram {
+    margin: 24px auto;
+    page-break-inside: avoid;
+  }
+
+  /* ── Step flow diagram ── */
+  .step-flow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin: 30px 0;
+  }
+  .step-card {
+    background: #fff;
+    border: 2px solid #0e7490;
+    border-radius: 16px;
+    padding: 20px 24px;
+    text-align: center;
+    width: 180px;
+    position: relative;
+  }
+  .step-card .step-num {
+    background: #0e7490;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14pt;
+    margin: 0 auto 10px;
+  }
+  .step-card .step-name {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #0e7490;
+    margin-bottom: 6px;
+  }
+  .step-card .step-desc {
+    font-size: 9pt;
+    color: #64748b;
+    line-height: 1.4;
+  }
+  .step-arrow {
+    font-size: 28px;
+    color: #0e7490;
+    margin: 0 10px;
+    flex-shrink: 0;
+  }
+
+  /* ── Login flow ── */
+  .login-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+  }
+  .login-step {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 28px;
+    text-align: center;
+    width: 320px;
+    font-size: 10pt;
+  }
+  .login-step.highlight {
+    border-color: #0e7490;
+    background: #ecfeff;
+    font-weight: 600;
+  }
+  .login-arrow-down {
+    font-size: 22px;
+    color: #94a3b8;
+    margin: 4px 0;
+  }
+
+  /* ── Product config diagram ── */
+  .config-cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+  }
+  .config-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px;
+    width: 180px;
+    text-align: center;
+    transition: all 0.2s;
+    page-break-inside: avoid;
+  }
+  .config-card .card-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .config-card .card-title {
+    font-size: 13pt;
+    font-weight: 600;
+    color: #0e7490;
+    margin-bottom: 4px;
+  }
+  .config-card .card-subtitle {
+    font-size: 9pt;
+    color: #64748b;
+  }
+  .config-card .card-example {
+    font-size: 8.5pt;
+    color: #94a3b8;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ── Marking form generation diagram ── */
+  .marking-gen {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .marking-gen-header {
+    background: #0e7490;
+    color: #fff;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 10pt;
+  }
+  .marking-gen-body {
+    padding: 16px 18px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .marking-chip {
+    background: #ecfeff;
+    border: 1px solid #67e8f9;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 9pt;
+    color: #164e63;
+  }
+
+  /* ── Feature grid ── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    page-break-inside: avoid;
+  }
+  .feature-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #ecfeff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .feature-text .ft-title {
+    font-weight: 600;
+    font-size: 10pt;
+    color: #0e7490;
+  }
+  .feature-text .ft-desc {
+    font-size: 9pt;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  /* ── Mockup screens ── */
+  .mockup {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px auto;
+    max-width: 520px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    page-break-inside: avoid;
+  }
+  .mockup-toolbar {
+    background: #f1f5f9;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .mockup-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .mockup-dot.r { background: #ef4444; }
+  .mockup-dot.y { background: #eab308; }
+  .mockup-dot.g { background: #22c55e; }
+  .mockup-toolbar span { font-size: 8pt; color: #94a3b8; margin-left: 8px; }
+  .mockup-body {
+    padding: 20px;
+    background: #fff;
+  }
+
+  /* ── Screen mockup elements ── */
+  .mock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #0f172a;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .mock-header .logo { color: #fff; font-weight: 700; font-size: 11pt; }
+  .mock-header .nav { display: flex; gap: 12px; }
+  .mock-header .nav span { color: #94a3b8; font-size: 8pt; }
+
+  .mock-stepper {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .mock-step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9pt;
+    font-weight: 600;
+    border: 2px solid #cbd5e1;
+    color: #94a3b8;
+  }
+  .mock-step-dot.active {
+    background: #0e7490;
+    border-color: #0e7490;
+    color: #fff;
+  }
+  .mock-step-dot.done {
+    background: #22c55e;
+    border-color: #22c55e;
+    color: #fff;
+  }
+  .mock-step-line {
+    width: 30px;
+    height: 2px;
+    background: #cbd5e1;
+  }
+  .mock-step-line.done { background: #22c55e; }
+
+  .mock-section {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .mock-section-title {
+    font-size: 9pt;
+    font-weight: 600;
+    color: #0e7490;
+    margin-bottom: 8px;
+  }
+  .mock-radio-group {
+    display: flex;
+    gap: 8px;
+  }
+  .mock-radio {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 8pt;
+    color: #475569;
+  }
+  .mock-radio .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+  }
+  .mock-radio .dot.selected {
+    border-color: #0e7490;
+    background: radial-gradient(circle, #0e7490 40%, transparent 40%);
+  }
+  .mock-checkbox-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mock-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 8pt;
+    color: #475569;
+  }
+  .mock-checkbox .box {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    border: 2px solid #cbd5e1;
+  }
+  .mock-checkbox .box.checked {
+    background: #0e7490;
+    border-color: #0e7490;
+  }
+  .mock-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .mock-btn {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 8pt;
+    font-weight: 600;
+  }
+  .mock-btn.primary { background: #0e7490; color: #fff; }
+  .mock-btn.secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+  .mock-input {
+    width: 100%;
+    height: 28px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 8pt;
+    color: #94a3b8;
+    background: #f8fafc;
+    margin-top: 4px;
+  }
+  .mock-textarea {
+    width: 100%;
+    height: 48px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 8pt;
+    color: #94a3b8;
+    background: #f8fafc;
+    margin-top: 4px;
+  }
+  .mock-select {
+    height: 28px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 8pt;
+    color: #475569;
+    background: #f8fafc;
+    min-width: 100px;
+  }
+  .mock-img-placeholder {
+    width: 60px;
+    height: 48px;
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #94a3b8;
+    margin-top: 4px;
+  }
+  .mock-label-sm {
+    font-size: 7.5pt;
+    color: #64748b;
+    margin-top: 6px;
+    margin-bottom: 2px;
+  }
+
+  /* ── Sync diagram ── */
+  .sync-diagram {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin: 16px 0;
+    justify-content: center;
+  }
+  .sync-box {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    width: 140px;
+    font-size: 9pt;
+  }
+  .sync-box.source {
+    border-color: #0e7490;
+    background: #ecfeff;
+  }
+  .sync-box .sync-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #0e7490;
+    font-size: 9pt;
+  }
+  .sync-box .sync-items {
+    font-size: 8pt;
+    color: #64748b;
+    text-align: left;
+    line-height: 1.5;
+  }
+  .sync-arrow {
+    margin-top: 30px;
+    color: #0e7490;
+    font-size: 20px;
+  }
+
+  /* ── Export buttons ── */
+  .export-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .export-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 10pt;
+    font-weight: 600;
+    page-break-inside: avoid;
+  }
+  .export-btn .btn-icon { font-size: 20px; }
+  .export-btn.pdf { background: #fef2f2; border: 1.5px solid #fca5a5; color: #dc2626; }
+  .export-btn.print { background: #eff6ff; border: 1.5px solid #93c5fd; color: #2563eb; }
+  .export-btn.json { background: #ecfdf5; border: 1.5px solid #6ee7b7; color: #059669; }
+  .export-btn.reset { background: #f8fafc; border: 1.5px solid #cbd5e1; color: #64748b; }
+
+  /* ── FAQ ── */
+  .faq-item {
+    margin: 14px 0;
+    page-break-inside: avoid;
+  }
+  .faq-q {
+    font-weight: 600;
+    color: #0e7490;
+    font-size: 10.5pt;
+    margin-bottom: 4px;
+  }
+  .faq-a {
+    font-size: 10pt;
+    color: #475569;
+    padding-left: 18px;
+    border-left: 3px solid #e2e8f0;
+  }
+
+  /* ── User role table highlight ── */
+  .role-table td:first-child { font-weight: 600; }
+  .check { color: #22c55e; font-weight: 700; }
+  .cross { color: #ef4444; font-weight: 700; }
+
+  /* ── Numbered steps ── */
+  .numbered-steps {
+    counter-reset: step-counter;
+    list-style: none;
+    padding: 0;
+  }
+  .numbered-steps li {
+    counter-increment: step-counter;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 10px 0;
+    font-size: 10pt;
+  }
+  .numbered-steps li::before {
+    content: counter(step-counter);
+    background: #0e7490;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9pt;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Utility ── */
+  .text-center { text-align: center; }
+  .mt-20 { margin-top: 20px; }
+  .mb-20 { margin-bottom: 20px; }
+  .text-muted { color: #64748b; font-size: 9pt; }
+  strong { color: #0f172a; }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 8pt;
+    font-weight: 600;
+  }
+  .badge.admin { background: #fef3c7; color: #92400e; }
+  .badge.user { background: #dbeafe; color: #1e40af; }
+
+  /* ── Footer ── */
+  .page-footer {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+    font-size: 8pt;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- COVER PAGE                                   -->
+<!-- ============================================ -->
+<div class="cover">
+  <div class="cover-icon">📦</div>
+  <h1>포장사양서 작성 시스템</h1>
+  <h2>사용자 가이드</h2>
+  <div style="display:flex; gap:24px; margin-top:20px;">
+    <div style="text-align:center;">
+      <div style="font-size:28px; margin-bottom:4px;">📝</div>
+      <div style="font-size:9pt; opacity:0.7;">간편한 입력</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:28px; margin-bottom:4px;">👁️</div>
+      <div style="font-size:9pt; opacity:0.7;">실시간 미리보기</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:28px; margin-bottom:4px;">📄</div>
+      <div style="font-size:9pt; opacity:0.7;">PDF 출력</div>
+    </div>
+  </div>
+  <div class="version">v1.0 &nbsp;|&nbsp; 2026</div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- TABLE OF CONTENTS                            -->
+<!-- ============================================ -->
+<div class="toc">
+  <h2>목차</h2>
+  <div class="toc-item"><span class="num">01</span><span class="title">시스템 개요</span></div>
+  <div class="toc-item"><span class="num">02</span><span class="title">로그인 및 계정</span></div>
+  <div class="toc-item"><span class="num">03</span><span class="title">Step 1 — 유형 선택</span></div>
+  <div class="toc-item"><span class="num">04</span><span class="title">Step 2 — 내용 입력</span></div>
+  <div class="toc-item"><span class="num">05</span><span class="title">Step 3 — 미리보기 및 출력</span></div>
+  <div class="toc-item"><span class="num">06</span><span class="title">데이터 저장 및 불러오기</span></div>
+  <div class="toc-item"><span class="num">07</span><span class="title">관리자 기능</span></div>
+  <div class="toc-item"><span class="num">08</span><span class="title">자주 묻는 질문 (FAQ)</span></div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 1. SYSTEM OVERVIEW                           -->
+<!-- ============================================ -->
+<div class="content">
+
+<h2 class="section-title">01&emsp;시스템 개요</h2>
+
+<p>
+  <strong>신제품 포장사양서 작성 시스템</strong>은 화장품 신제품의 포장사양서를 웹 브라우저에서 작성하고, PDF로 출력할 수 있는 시스템입니다.
+  총 <strong>3단계</strong>로 나뉜 입력 위자드를 따라가면 포장사양서가 완성됩니다.
+</p>
+
+<!-- Step flow diagram -->
+<div class="diagram">
+  <div class="step-flow">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-name">유형 선택</div>
+      <div class="step-desc">제품 구성, 제품 유형,<br>포장재를 선택합니다</div>
+    </div>
+    <div class="step-arrow">▶</div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-name">내용 입력</div>
+      <div class="step-desc">포장방법, 착인, 라벨,<br>적재방법을 입력합니다</div>
+    </div>
+    <div class="step-arrow">▶</div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-name">미리보기/출력</div>
+      <div class="step-desc">완성된 사양서를<br>확인하고 PDF로 출력합니다</div>
+    </div>
+  </div>
+</div>
+
+<h3>주요 기능</h3>
+
+<div class="feature-grid">
+  <div class="feature-item">
+    <div class="feature-icon">🧩</div>
+    <div class="feature-text">
+      <div class="ft-title">자동 양식 생성</div>
+      <div class="ft-desc">Step 1 선택에 따라 착인/라벨 양식이 자동 생성됩니다</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-icon">🔄</div>
+    <div class="feature-text">
+      <div class="ft-title">착인 구성 자동 동기화</div>
+      <div class="ft-desc">첫 번째 구성품 착인 내용이 나머지에 자동 적용됩니다</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-icon">💾</div>
+    <div class="feature-text">
+      <div class="ft-title">자동 임시저장</div>
+      <div class="ft-desc">브라우저에 자동 저장되어 새로고침해도 유지됩니다</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-icon">📄</div>
+    <div class="feature-text">
+      <div class="ft-title">PDF 다운로드 / 인쇄</div>
+      <div class="ft-desc">완성된 사양서를 PDF로 다운로드하거나 바로 인쇄합니다</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-icon">📁</div>
+    <div class="feature-text">
+      <div class="ft-title">JSON 저장/불러오기</div>
+      <div class="ft-desc">작성 데이터를 파일로 저장하고 나중에 이어서 작업합니다</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-icon">🔒</div>
+    <div class="feature-text">
+      <div class="ft-title">Google 로그인</div>
+      <div class="ft-desc">Google 계정으로 안전하게 로그인합니다</div>
+    </div>
+  </div>
+</div>
+
+<div class="info-box note">권장 브라우저: <strong>Google Chrome</strong> (최신 버전). Microsoft Edge, Firefox도 지원합니다.</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 2. LOGIN                                     -->
+<!-- ============================================ -->
+
+<h2 class="section-title">02&emsp;로그인 및 계정</h2>
+
+<h3>2.1 로그인 절차</h3>
+
+<div class="diagram">
+  <div class="login-flow">
+    <div class="login-step">시스템 접속</div>
+    <div class="login-arrow-down">▼</div>
+    <div class="login-step highlight">🔵 "Google로 로그인" 버튼 클릭</div>
+    <div class="login-arrow-down">▼</div>
+    <div class="login-step">Google 계정 선택 및 권한 승인</div>
+    <div class="login-arrow-down">▼</div>
+    <div class="login-step" style="border-color:#fcd34d; background:#fffbeb;">앱 추가 인증 (설정된 경우에만)</div>
+    <div class="login-arrow-down">▼</div>
+    <div class="login-step highlight">✅ 사양서 작성 화면 진입</div>
+  </div>
+</div>
+
+<h3>2.2 최초 가입 시</h3>
+
+<ol class="numbered-steps">
+  <li>처음 Google 로그인 시 계정이 <strong>비활성 상태</strong>로 자동 생성됩니다.</li>
+  <li><strong>"승인 대기"</strong> 화면이 표시됩니다.</li>
+  <li>관리자에게 <strong>계정 활성화</strong>를 요청하세요.</li>
+  <li>관리자가 활성화 후 재로그인하면 정상 이용 가능합니다.</li>
+</ol>
+
+<div class="info-box tip">앱 추가 인증이 설정된 경우, Google 로그인 후 별도의 아이디/비밀번호 입력 화면이 나타납니다. 관리자에게 인증 정보를 안내받으세요.</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 3. STEP 1                                    -->
+<!-- ============================================ -->
+
+<h2 class="section-title">03&emsp;Step 1 — 유형 선택</h2>
+
+<p>사양서의 기본 유형을 선택하는 첫 번째 단계입니다.</p>
+
+<!-- Screen mockup for Step 1 -->
+<div class="mockup">
+  <div class="mockup-toolbar">
+    <div class="mockup-dot r"></div>
+    <div class="mockup-dot y"></div>
+    <div class="mockup-dot g"></div>
+    <span>포장사양서 작성 시스템</span>
+  </div>
+  <div class="mockup-body">
+    <div class="mock-stepper">
+      <div class="mock-step-dot active">1</div>
+      <div class="mock-step-line"></div>
+      <div class="mock-step-dot">2</div>
+      <div class="mock-step-line"></div>
+      <div class="mock-step-dot">3</div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-section-title">제품 구성</div>
+      <div class="mock-radio-group">
+        <div class="mock-radio"><div class="dot selected"></div> 단품</div>
+        <div class="mock-radio"><div class="dot"></div> 미품</div>
+        <div class="mock-radio"><div class="dot"></div> 기획세트</div>
+      </div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-section-title">제품 유형 (복수 선택 가능)</div>
+      <div class="mock-checkbox-group">
+        <div class="mock-checkbox"><div class="box checked"></div> 기초</div>
+        <div class="mock-checkbox"><div class="box"></div> 쿠션</div>
+        <div class="mock-checkbox"><div class="box checked"></div> 튜브</div>
+        <div class="mock-checkbox"><div class="box"></div> 샤셰</div>
+        <div class="mock-checkbox"><div class="box"></div> 마스크</div>
+        <div class="mock-checkbox"><div class="box"></div> 립스틱</div>
+        <div class="mock-checkbox"><div class="box"></div> 파우더</div>
+        <div class="mock-checkbox"><div class="box"></div> 기타</div>
+      </div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-section-title">포장재 (복수 선택 가능)</div>
+      <div class="mock-checkbox-group">
+        <div class="mock-checkbox"><div class="box checked"></div> 지퍼백</div>
+        <div class="mock-checkbox"><div class="box checked"></div> 아웃박스</div>
+        <div class="mock-checkbox"><div class="box"></div> 인박스</div>
+        <div class="mock-checkbox"><div class="box"></div> RRP박스</div>
+        <div class="mock-checkbox"><div class="box"></div> 기타</div>
+      </div>
+    </div>
+    <div class="mock-btn-row">
+      <div class="mock-btn primary">다음 →</div>
+    </div>
+  </div>
+</div>
+
+<h3>3.1 제품 구성 선택</h3>
+
+<div class="config-cards">
+  <div class="config-card">
+    <span class="card-icon">📦</span>
+    <div class="card-title">단품</div>
+    <div class="card-subtitle">제품 + 개별 단상자</div>
+    <div class="card-example">예: 스킨케어 단품</div>
+  </div>
+  <div class="config-card">
+    <span class="card-icon">🧴</span>
+    <div class="card-title">미품</div>
+    <div class="card-subtitle">제품만 (단상자 없음)</div>
+    <div class="card-example">예: 리필, 이너 제품</div>
+  </div>
+  <div class="config-card">
+    <span class="card-icon">🎁</span>
+    <div class="card-title">기획세트</div>
+    <div class="card-subtitle">여러 제품을 세트 박스에 구성</div>
+    <div class="card-example">예: 선물세트, 기획세트</div>
+  </div>
+</div>
+
+<h3>3.2 제품 유형</h3>
+<p>제품의 용기 유형을 선택합니다. <strong>복수 선택 가능</strong>합니다.</p>
+
+<table>
+  <tr><th>유형</th><th>설명</th></tr>
+  <tr><td>기초</td><td>일반 용기 (병, 펌프 등)</td></tr>
+  <tr><td>쿠션</td><td>쿠션 팩트류</td></tr>
+  <tr><td>튜브</td><td>튜브 용기 (커팅 형태 등 추가 입력)</td></tr>
+  <tr><td>샤셰</td><td>1회용 샤셰 포장</td></tr>
+  <tr><td>마스크</td><td>시트 마스크</td></tr>
+  <tr><td>립스틱/립글로즈</td><td>립 제품류</td></tr>
+  <tr><td>파우더</td><td>파우더류</td></tr>
+  <tr><td>기타</td><td>직접 입력</td></tr>
+</table>
+
+<div class="info-box note"><strong>튜브</strong>를 선택하면 Step 2에서 커팅 형태, 커팅 길이, 착인면 등 튜브 전용 입력 항목이 추가됩니다.</div>
+
+<h3>3.3 포장재 선택</h3>
+<p>사용하는 포장재를 모두 선택합니다. 여기서 선택한 포장재마다 Step 2에서 <strong>라벨 양식이 자동 생성</strong>됩니다.</p>
+
+<table>
+  <tr><th>포장재</th><th>설명</th></tr>
+  <tr><td>지퍼백</td><td>지퍼가 달린 비닐 포장</td></tr>
+  <tr><td>인박스</td><td>내부 박스</td></tr>
+  <tr><td>아웃박스</td><td>외부 박스 (출하용)</td></tr>
+  <tr><td>RRP박스</td><td>Retail Ready Packaging</td></tr>
+  <tr><td>기타</td><td>직접 명칭 입력</td></tr>
+</table>
+
+<h3>3.4 기획세트 구성품 (세트 선택 시)</h3>
+
+<p><strong>기획세트</strong>를 선택한 경우 구성품 정보를 입력합니다.</p>
+
+<ol class="numbered-steps">
+  <li><strong>"구성품 추가"</strong> 버튼을 클릭하여 구성품을 추가합니다.</li>
+  <li>각 구성품의 <strong>이름</strong>을 입력합니다.</li>
+  <li>각 구성품의 <strong>제품 유형</strong>을 선택합니다.</li>
+  <li>필요 시 <strong>개별 파우치 / 개별 단상자</strong> 유무를 체크합니다.</li>
+  <li>불필요한 구성품은 <strong>삭제 버튼</strong>으로 제거합니다.</li>
+</ol>
+
+<div class="info-box warn">
+  포장재를 1개 이상 선택해야 하며, 기획세트의 경우 모든 구성품 이름을 입력해야 다음 단계로 이동할 수 있습니다.
+</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 4. STEP 2                                    -->
+<!-- ============================================ -->
+
+<h2 class="section-title">04&emsp;Step 2 — 내용 입력</h2>
+
+<p>세부 포장사양을 입력하는 단계입니다. Step 1에서 선택한 유형에 따라 양식이 <strong>자동 생성</strong>됩니다.</p>
+
+<!-- Screen mockup for Step 2 -->
+<div class="mockup">
+  <div class="mockup-toolbar">
+    <div class="mockup-dot r"></div>
+    <div class="mockup-dot y"></div>
+    <div class="mockup-dot g"></div>
+    <span>Step 2 — 내용 입력</span>
+  </div>
+  <div class="mockup-body">
+    <div class="mock-stepper">
+      <div class="mock-step-dot done">✓</div>
+      <div class="mock-step-line done"></div>
+      <div class="mock-step-dot active">2</div>
+      <div class="mock-step-line"></div>
+      <div class="mock-step-dot">3</div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-section-title">📦 포장방법</div>
+      <div class="mock-label-sm">포장방법 설명</div>
+      <div class="mock-textarea">포장 공정을 입력하세요...</div>
+      <div class="mock-label-sm">공정 이미지</div>
+      <div class="mock-img-placeholder">📷</div>
+    </div>
+    <div class="mock-section">
+      <div class="mock-section-title">🔖 착인 방법 — 구성품</div>
+      <div style="display:flex; gap:8px;">
+        <div style="flex:1">
+          <div class="mock-label-sm">착인 방법</div>
+          <div class="mock-select">코딩 ▾</div>
+        </div>
+        <div style="flex:1">
+          <div class="mock-label-sm">착인 위치</div>
+          <div class="mock-select">용기 밑면 ▾</div>
+        </div>
+      </div>
+      <div class="mock-label-sm">착인 구성</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;">
+        <div style="font-size:7.5pt; padding:3px 8px; background:#ecfeff; border-radius:4px; border:1px solid #67e8f9;">관리번호</div>
+        <div style="font-size:7.5pt; padding:3px 8px; background:#ecfeff; border-radius:4px; border:1px solid #67e8f9;">사용기한</div>
+        <div style="font-size:7.5pt; padding:3px 8px; background:#ecfeff; border-radius:4px; border:1px solid #67e8f9;">제조일자</div>
+      </div>
+    </div>
+    <div class="mock-btn-row">
+      <div class="mock-btn secondary">← 이전</div>
+      <div class="mock-btn primary">다음 →</div>
+    </div>
+  </div>
+</div>
+
+<h3>4.1 포장방법</h3>
+
+<table>
+  <tr><th>항목</th><th>설명</th></tr>
+  <tr><td>포장방법 설명</td><td>포장 공정을 텍스트로 기술합니다</td></tr>
+  <tr><td>공정 이미지</td><td>포장 과정 사진을 업로드합니다 (복수 가능)</td></tr>
+</table>
+
+<h3>4.2 착인 방법</h3>
+
+<p>Step 1 선택에 따라 착인 양식이 자동 생성됩니다.</p>
+
+<!-- Marking form generation diagram -->
+<div class="no-break">
+<div class="marking-gen">
+  <div class="marking-gen-header">단품 선택 시 → 자동 생성되는 착인 양식</div>
+  <div class="marking-gen-body">
+    <div class="marking-chip">구성품 착인</div>
+    <div class="marking-chip">개별 단상자 착인</div>
+  </div>
+</div>
+
+<div class="marking-gen">
+  <div class="marking-gen-header">미품 선택 시 → 자동 생성되는 착인 양식</div>
+  <div class="marking-gen-body">
+    <div class="marking-chip">구성품 착인</div>
+  </div>
+</div>
+
+<div class="marking-gen">
+  <div class="marking-gen-header">기획세트 선택 시 → 자동 생성되는 착인 양식 (예: 구성품 2개)</div>
+  <div class="marking-gen-body">
+    <div class="marking-chip">구성품 A 착인</div>
+    <div class="marking-chip">구성품 B 착인</div>
+    <div class="marking-chip">개별 파우치 (해당 시)</div>
+    <div class="marking-chip">개별 단상자 (해당 시)</div>
+    <div class="marking-chip">세트 박스 착인</div>
+  </div>
+</div>
+</div>
+
+<h4>착인 기본 정보</h4>
+
+<table>
+  <tr><th>항목</th><th>선택지</th></tr>
+  <tr><td>착인 방법</td><td>코딩 / 인각 / 기타</td></tr>
+  <tr><td>착인 위치</td><td>용기 밑면 / 뒷면 / 실링면 / 앞면하단 / 뒷면하단 / 기타</td></tr>
+  <tr><td>위치 이미지</td><td>착인 위치를 나타내는 이미지 업로드</td></tr>
+</table>
+
+<h4>착인 구성</h4>
+
+<table>
+  <tr><th>항목</th><th>설명</th></tr>
+  <tr><td>관리번호</td><td>코스맥스ABC / LOT ABC / 거래처지정 / 기타</td></tr>
+  <tr><td>사용기한</td><td>YYYYMMDD / EXP YYYYMMDD까지 / EXP YYYYMMDD / 기타</td></tr>
+  <tr><td>제조일자</td><td>YYYYMMDD제조 / MFG YYYYMMDD / MFD YYYYMMDD / 기타</td></tr>
+  <tr><td>기타 착인</td><td>추가 착인 내용 (자유 입력)</td></tr>
+  <tr><td>착인 줄 수</td><td>해당 착인의 줄 수</td></tr>
+  <tr><td>사용기한 기준</td><td>벌크제조일 / 포장일 / 충전일</td></tr>
+  <tr><td>사용기한 (개월)</td><td>사용기한 개월 수</td></tr>
+</table>
+
+<h4>튜브 전용 항목</h4>
+
+<p>Step 1에서 <strong>튜브</strong>를 선택한 경우 추가 표시됩니다.</p>
+
+<table>
+  <tr><th>항목</th><th>선택지</th></tr>
+  <tr><td>커팅 형태</td><td>일자 / 라운드 / 벤딩</td></tr>
+  <tr><td>커팅 길이</td><td>mm 단위 입력</td></tr>
+  <tr><td>착인면</td><td>앞면 / 뒷면</td></tr>
+</table>
+
+<h4>착인 구성 자동 동기화</h4>
+
+<div class="sync-diagram">
+  <div class="sync-box source">
+    <div class="sync-title">구성품 A (첫 번째)</div>
+    <div class="sync-items">
+      관리번호: 코스맥스ABC<br>
+      사용기한: YYYYMMDD<br>
+      제조일자: MFG YYYYMMDD
+    </div>
+  </div>
+  <div class="sync-arrow">→</div>
+  <div class="sync-box">
+    <div class="sync-title">구성품 B</div>
+    <div class="sync-items" style="color:#0e7490;">자동 동기화 적용됨</div>
+  </div>
+  <div class="sync-arrow">→</div>
+  <div class="sync-box">
+    <div class="sync-title">단상자 / 세트박스</div>
+    <div class="sync-items" style="color:#0e7490;">자동 동기화 적용됨</div>
+  </div>
+</div>
+
+<div class="info-box tip">첫 번째 구성품의 착인 구성을 입력하면 나머지 양식에 자동으로 동일 내용이 적용됩니다. 개별 양식에서 직접 수정하면 해당 양식의 자동 동기화가 해제됩니다.</div>
+
+<div class="page-break"></div>
+
+<h3>4.3 라벨</h3>
+
+<p>Step 1에서 선택한 <strong>포장재마다 라벨 양식이 자동 생성</strong>됩니다.</p>
+
+<table>
+  <tr><th>항목</th><th>선택지 / 설명</th></tr>
+  <tr><td>라벨 형식</td><td>없음 / 별첨 / WMS / 직접 입력</td></tr>
+  <tr><td>부착 위치</td><td>텍스트 입력</td></tr>
+  <tr><td>부착 수량</td><td>숫자 입력</td></tr>
+</table>
+
+<h4>"직접 입력" 선택 시 (커스텀 라벨)</h4>
+
+<p>라벨에 포함할 항목을 선택합니다.</p>
+
+<table>
+  <tr><th>항목</th><th>설명</th></tr>
+  <tr><td>제품명</td><td>제품명 표시 여부</td></tr>
+  <tr><td>수량</td><td>수량 표시 여부</td></tr>
+  <tr><td>관리번호</td><td>관리번호 표시 여부</td></tr>
+  <tr><td>사용기한</td><td>사용기한 표시 여부</td></tr>
+  <tr><td>제조일자</td><td>제조일자 표시 여부</td></tr>
+  <tr><td>바코드 (이미지)</td><td>바코드 이미지 표시 여부</td></tr>
+  <tr><td>바코드 (넘버)</td><td>바코드 번호 표시 여부</td></tr>
+  <tr><td>기타</td><td>추가 항목 직접 입력</td></tr>
+</table>
+
+<h4>파레트 라벨</h4>
+
+<p>모든 포장재 공통으로 <strong>1개</strong>의 파레트 라벨 양식이 제공됩니다.</p>
+
+<table>
+  <tr><th>항목</th><th>설명</th></tr>
+  <tr><td>라벨 형식</td><td>없음 / 별첨 / WMS / 직접 입력</td></tr>
+  <tr><td>부착 위치</td><td>텍스트 입력</td></tr>
+  <tr><td>부착 수량</td><td>숫자 입력</td></tr>
+</table>
+
+<h3>4.4 적재방법</h3>
+
+<table>
+  <tr><th>항목</th><th>선택지 / 설명</th></tr>
+  <tr><td>파레트 종류</td><td>KPP / 아주 / 수출용 플라스틱 / 목재 / 기타</td></tr>
+  <tr><td>단당 입수</td><td>한 층에 들어가는 박스 수</td></tr>
+  <tr><td>적재 단수</td><td>쌓는 층 수</td></tr>
+  <tr><td>최대 높이</td><td>최대 적재 높이</td></tr>
+</table>
+
+<h3>4.5 기타 요청사항</h3>
+
+<table>
+  <tr><th>항목</th><th>설명</th></tr>
+  <tr><td>요청사항</td><td>추가 요청사항을 자유롭게 입력</td></tr>
+  <tr><td>첨부 이미지</td><td>참고 이미지 업로드 (복수 가능)</td></tr>
+</table>
+
+<div class="info-box tip"><strong>"이전"</strong> 버튼으로 Step 1로 돌아가도 입력한 내용이 모두 유지됩니다. 안심하고 이전 단계로 이동하세요.</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 5. STEP 3                                    -->
+<!-- ============================================ -->
+
+<h2 class="section-title">05&emsp;Step 3 — 미리보기 및 출력</h2>
+
+<p>작성한 사양서를 최종 확인하고 출력하는 단계입니다.</p>
+
+<!-- Screen mockup for Step 3 -->
+<div class="mockup">
+  <div class="mockup-toolbar">
+    <div class="mockup-dot r"></div>
+    <div class="mockup-dot y"></div>
+    <div class="mockup-dot g"></div>
+    <span>Step 3 — 미리보기 및 출력</span>
+  </div>
+  <div class="mockup-body">
+    <div class="mock-stepper">
+      <div class="mock-step-dot done">✓</div>
+      <div class="mock-step-line done"></div>
+      <div class="mock-step-dot done">✓</div>
+      <div class="mock-step-line done"></div>
+      <div class="mock-step-dot active">3</div>
+    </div>
+    <div class="mock-section" style="min-height:100px; display:flex; align-items:center; justify-content:center;">
+      <div style="text-align:center; color:#94a3b8;">
+        <div style="font-size:32px; margin-bottom:8px;">📋</div>
+        <div style="font-size:9pt;">포장사양서 미리보기 영역</div>
+        <div style="font-size:8pt; color:#cbd5e1;">입력한 모든 내용이 문서 형태로 표시됩니다</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+      <div class="mock-btn" style="background:#fef2f2; color:#dc2626; border:1px solid #fca5a5;">📥 PDF 다운로드</div>
+      <div class="mock-btn" style="background:#eff6ff; color:#2563eb; border:1px solid #93c5fd;">🖨️ 인쇄</div>
+      <div class="mock-btn" style="background:#ecfdf5; color:#059669; border:1px solid #6ee7b7;">💾 JSON 저장</div>
+      <div class="mock-btn" style="background:#f8fafc; color:#64748b; border:1px solid #cbd5e1;">📂 불러오기</div>
+      <div class="mock-btn" style="background:#fff; color:#94a3b8; border:1px solid #e2e8f0;">🔄 초기화</div>
+    </div>
+  </div>
+</div>
+
+<h3>5.1 미리보기 내용</h3>
+
+<p>Step 1~2에서 입력한 모든 내용이 문서 형태로 표시됩니다.</p>
+
+<table>
+  <tr><th>섹션</th><th>표시 내용</th></tr>
+  <tr><td>기본 정보</td><td>제품 구성, 제품 유형, 포장재 목록</td></tr>
+  <tr><td>포장방법</td><td>설명 텍스트 + 공정 이미지</td></tr>
+  <tr><td>착인 정보</td><td>착인 방법, 위치, 착인 구성 미리보기 (줄별 표시)</td></tr>
+  <tr><td>라벨 정보</td><td>라벨 형식, 부착 위치/수량</td></tr>
+  <tr><td>적재방법</td><td>파레트 종류, 입수, 단수, 최대 높이</td></tr>
+  <tr><td>기타 요청사항</td><td>요청사항 텍스트 + 첨부 이미지</td></tr>
+</table>
+
+<h3>5.2 출력 옵션</h3>
+
+<div class="export-btns">
+  <div class="export-btn pdf">
+    <span class="btn-icon">📥</span>
+    <div>
+      <div>PDF 다운로드</div>
+      <div style="font-size:8pt; font-weight:400; opacity:0.7;">포장사양서_날짜.pdf</div>
+    </div>
+  </div>
+  <div class="export-btn print">
+    <span class="btn-icon">🖨️</span>
+    <div>
+      <div>인쇄</div>
+      <div style="font-size:8pt; font-weight:400; opacity:0.7;">브라우저 인쇄 대화상자</div>
+    </div>
+  </div>
+  <div class="export-btn json">
+    <span class="btn-icon">💾</span>
+    <div>
+      <div>JSON 저장</div>
+      <div style="font-size:8pt; font-weight:400; opacity:0.7;">나중에 불러오기 가능</div>
+    </div>
+  </div>
+  <div class="export-btn reset">
+    <span class="btn-icon">🔄</span>
+    <div>
+      <div>초기화</div>
+      <div style="font-size:8pt; font-weight:400; opacity:0.7;">모든 데이터 삭제</div>
+    </div>
+  </div>
+</div>
+
+<div class="info-box tip">미리보기에서 수정이 필요하면 <strong>"이전"</strong> 버튼으로 돌아가 수정하세요. 입력한 내용은 모두 유지됩니다.</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 6. DATA SAVE/LOAD                            -->
+<!-- ============================================ -->
+
+<h2 class="section-title">06&emsp;데이터 저장 및 불러오기</h2>
+
+<h3>6.1 자동 임시저장</h3>
+
+<div class="no-break">
+<div style="display:flex; gap:20px; align-items:center; margin:20px 0;">
+  <div style="width:60px; height:60px; background:#ecfdf5; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0;">💾</div>
+  <div>
+    <p style="margin:0; font-weight:600; color:#059669;">자동으로 브라우저에 저장됩니다</p>
+    <p style="margin:4px 0 0; font-size:10pt; color:#64748b;">별도의 저장 버튼을 누를 필요 없이, 작성 중인 모든 데이터가 브라우저(localStorage)에 자동 저장됩니다. 페이지를 새로고침하거나 브라우저를 닫았다 열어도 이전 입력 내용이 유지됩니다.</p>
+  </div>
+</div>
+</div>
+
+<div class="info-box warn">브라우저 캐시(방문 기록/사이트 데이터)를 삭제하면 자동 저장된 데이터도 함께 삭제됩니다. 중요한 데이터는 JSON 파일로 별도 저장하세요.</div>
+
+<h3>6.2 JSON 파일로 저장</h3>
+
+<p>장기 보관이나 다른 PC에서 이어서 작업할 때 사용합니다.</p>
+
+<ol class="numbered-steps">
+  <li>Step 3에서 <strong>"JSON 저장"</strong> 버튼을 클릭합니다.</li>
+  <li><code>포장사양서_YYYYMMDD_HHMMSS.json</code> 파일이 다운로드됩니다.</li>
+  <li>이 파일을 안전한 곳에 보관합니다.</li>
+</ol>
+
+<h3>6.3 JSON 파일 불러오기</h3>
+
+<ol class="numbered-steps">
+  <li>Step 3에서 <strong>"불러오기"</strong> 버튼을 클릭합니다.</li>
+  <li>이전에 저장한 <code>.json</code> 파일을 선택합니다.</li>
+  <li>저장된 데이터가 복원되어 이어서 작업할 수 있습니다.</li>
+</ol>
+
+<div class="info-box warn">불러오기를 하면 현재 작성 중인 데이터가 <strong>덮어씌워집니다.</strong> 현재 작업 중인 내용이 있다면 먼저 JSON으로 저장한 후 불러오기를 진행하세요.</div>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 7. ADMIN                                     -->
+<!-- ============================================ -->
+
+<h2 class="section-title">07&emsp;관리자 기능</h2>
+
+<p><span class="badge admin">Admin</span> 관리자 계정으로 로그인한 경우에만 사용할 수 있는 기능입니다.</p>
+
+<h3>7.1 접근 권한</h3>
+
+<table class="role-table">
+  <tr>
+    <th>기능</th>
+    <th>일반 사용자 (미활성)</th>
+    <th>일반 사용자 (활성)</th>
+    <th>관리자</th>
+  </tr>
+  <tr>
+    <td>사양서 작성</td>
+    <td class="cross">✗</td>
+    <td class="check">✓</td>
+    <td class="check">✓</td>
+  </tr>
+  <tr>
+    <td>사양서 조회</td>
+    <td class="cross">✗</td>
+    <td class="check">✓</td>
+    <td class="check">✓</td>
+  </tr>
+  <tr>
+    <td>관리자 페이지</td>
+    <td class="cross">✗</td>
+    <td class="cross">✗</td>
+    <td class="check">✓</td>
+  </tr>
+  <tr>
+    <td>사용자 활성화</td>
+    <td class="cross">✗</td>
+    <td class="cross">✗</td>
+    <td class="check">✓</td>
+  </tr>
+  <tr>
+    <td>역할 변경</td>
+    <td class="cross">✗</td>
+    <td class="cross">✗</td>
+    <td class="check">✓</td>
+  </tr>
+  <tr>
+    <td>앱 인증 설정</td>
+    <td class="cross">✗</td>
+    <td class="cross">✗</td>
+    <td class="check">✓</td>
+  </tr>
+</table>
+
+<h3>7.2 사용자 관리</h3>
+
+<p>화면 상단 <strong>"관리"</strong> 메뉴를 클릭하여 관리자 페이지로 이동합니다.</p>
+
+<ol class="numbered-steps">
+  <li><strong>사용자 목록</strong>에서 등록된 모든 사용자를 확인합니다.</li>
+  <li>신규 가입자의 <strong>"활성화"</strong> 버튼을 클릭하여 계정을 활성화합니다.</li>
+  <li>필요 시 사용자의 <strong>역할을 변경</strong>합니다 (user ↔ admin).</li>
+</ol>
+
+<h3>7.3 앱 인증 설정</h3>
+
+<p>Google 로그인 외에 추가 인증 단계를 설정할 수 있습니다.</p>
+
+<ol class="numbered-steps">
+  <li>관리자 페이지에서 <strong>"인증 설정"</strong> 섹션을 찾습니다.</li>
+  <li>아이디와 비밀번호를 설정합니다.</li>
+  <li>설정 후 모든 사용자가 Google 로그인 후 추가 인증을 거쳐야 합니다.</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- ============================================ -->
+<!-- 8. FAQ                                       -->
+<!-- ============================================ -->
+
+<h2 class="section-title">08&emsp;자주 묻는 질문 (FAQ)</h2>
+
+<div class="faq-item">
+  <div class="faq-q">Q. 새로고침했더니 Step 1으로 돌아갑니다.</div>
+  <div class="faq-a">정상 동작입니다. 페이지를 새로고침하면 항상 Step 1부터 시작하지만, 이전에 입력한 데이터는 모두 유지됩니다. "다음" 버튼을 눌러 이동하면 입력했던 내용을 확인할 수 있습니다.</div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q">Q. PDF 다운로드 시 이미지가 깨집니다.</div>
+  <div class="faq-a">Chrome 브라우저 사용을 권장합니다. 이미지 크기가 너무 큰 경우 미리 리사이즈한 후 업로드하세요.</div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q">Q. 다른 PC에서 이어서 작업하고 싶습니다.</div>
+  <div class="faq-a">Step 3에서 "JSON 저장"으로 데이터를 파일로 저장한 뒤, 다른 PC에서 "불러오기"로 파일을 열면 됩니다.</div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q">Q. 기획세트에서 구성품을 추가/삭제하면 착인 양식은 어떻게 되나요?</div>
+  <div class="faq-a">Step 1에서 구성품을 변경한 후 Step 2로 이동하면 착인 양식이 자동으로 재생성됩니다. 단, 이전에 입력한 착인 내용이 초기화될 수 있으니 주의하세요.</div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q">Q. 착인 구성 자동 동기화가 무엇인가요?</div>
+  <div class="faq-a">첫 번째 구성품의 착인 구성(관리번호, 사용기한, 제조일자 등)을 입력하면 동일한 내용이 나머지 구성품에도 자동 적용됩니다. 개별 구성품에서 직접 수정하면 해당 구성품의 자동 동기화가 해제됩니다.</div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q">Q. "승인 대기" 화면에서 벗어나지 못합니다.</div>
+  <div class="faq-a">관리자에게 계정 활성화를 요청하세요. 관리자가 관리자 페이지에서 계정을 활성화하면 정상적으로 사용할 수 있습니다.</div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q">Q. 입력한 데이터를 전부 삭제하고 싶습니다.</div>
+  <div class="faq-a">Step 3에서 "초기화" 버튼을 클릭하면 모든 데이터가 삭제되고 처음 상태로 돌아갑니다.</div>
+</div>
+
+<div class="faq-item">
+  <div class="faq-q">Q. 이미지를 여러 장 업로드할 수 있나요?</div>
+  <div class="faq-a">네, 포장방법 공정 이미지, 착인 위치 이미지, 기타 요청사항 첨부 이미지 모두 복수 업로드를 지원합니다.</div>
+</div>
+
+<!-- Footer -->
+<div class="page-footer">
+  신제품 포장사양서 작성 시스템 · 사용자 가이드 v1.0<br>
+  문의사항은 관리자에게 연락하세요.
+</div>
+
+</div><!-- end .content -->
+
+</body>
+</html>

@@ -181,11 +181,11 @@ export const MarkingCompositionForm: React.FC<MarkingCompositionFormProps> = ({
             
             {composition.managementNumberType === 'client' && (
               <div className="ml-4">
-                <label className="block text-sm text-gray-600 mb-1">관리번호 설명</label>
+                <label className="block text-sm text-gray-600 mb-1">관리번호 예시</label>
                 <TextInput
                   value={composition.clientNumberDescription || ''}
                   onChange={(value) => onChange({ clientNumberDescription: value })}
-                  placeholder="고객사 관리번호 양식을 설명해주세요"
+                  placeholder="고객사 관리번호 예시를 입력해주세요"
                 />
               </div>
             )}
