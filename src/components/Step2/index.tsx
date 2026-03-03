@@ -1,16 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PackagingMethod } from './PackagingMethod';
 import { MarkingSection } from './Marking/MarkingSection';
 import { LabelSection } from './Label/LabelSection';
 import { LoadingMethod } from './LoadingMethod';
 import { AdditionalRequests } from './AdditionalRequests';
 import { useFormStore } from '../../store/formStore';
+import type { CustomLabelItem } from '../../types';
+
+const hasNoCustomLabelItemsSelected = (items?: CustomLabelItem): boolean => {
+  if (!items) return true;
+  return !items.productName && !items.quantity && !items.managementNumber &&
+    !items.expiryDate && !items.packagingDate && !items.clientProductCode &&
+    !items.englishName && !items.barcodeImage && !items.barcodeNumber &&
+    (!items.others || items.others.length === 0);
+};
 
 export const Step2ContentInput: React.FC = () => {
   const { prevStep, nextStep } = useFormStore();
+  const [showLabelItemsModal, setShowLabelItemsModal] = useState(false);
+
+  const handleSetDefaultLabelItems = () => {
+    const state = useFormStore.getState();
+    const { labelForms, paletteLabel } = state;
+
+    const defaults: Partial<CustomLabelItem> = {
+      productName: true,
+      quantity: true,
+      managementNumber: true,
+      expiryDate: true,
+    };
+
+    labelForms.forEach((form) => {
+      if (form.formatType === 'custom') {
+        state.updateCustomLabelItems(form.id, defaults, false);
+      }
+    });
+
+    if (paletteLabel.formatType === 'custom') {
+      state.updatePaletteLabelCustomItems(defaults);
+    }
+
+    setShowLabelItemsModal(false);
+  };
 
   const handleNextStep = () => {
-    const { markingForms } = useFormStore.getState();
+    const { markingForms, labelForms, paletteLabel } = useFormStore.getState();
 
     // 1. 관리번호 필수 체크 (체크 여부 + 유형 선택 여부)
     const hasIncompleteManagementNumber = markingForms.some(
@@ -43,7 +77,7 @@ export const Step2ContentInput: React.FC = () => {
       if (!confirmed) return;
     }
 
-    // 3. 사용기한 '까지' / 제조일자 '제조' 문구 누락 경고
+    // 4. 사용기한 '까지' / 제조일자 '제조' 문구 누락 경고
     const hasMissingSuffix = markingForms.some((form) => {
       const { composition } = form;
       if (composition.hasExpiryDate) {
@@ -62,6 +96,50 @@ export const Step2ContentInput: React.FC = () => {
         '내수 제품의 경우, 제조일자와 사용기한 뒤에 \'까지\', \'제조\'문구가 필수 입니다.'
       );
       if (!confirmed) return;
+    }
+
+    // 5. 직접입력 선택 시 라벨 항목 미선택 체크
+    const hasCustomWithNoItems = labelForms.some((form) =>
+      form.formatType === 'custom' && hasNoCustomLabelItemsSelected(form.customLabelItems)
+    );
+    const paletteCustomNoItems = paletteLabel.formatType === 'custom' &&
+      hasNoCustomLabelItemsSelected(paletteLabel.customLabelItems);
+
+    if (hasCustomWithNoItems || paletteCustomNoItems) {
+      setShowLabelItemsModal(true);
+      return;
+    }
+
+    // 6. 직접입력 + 라벨 항목 선택했지만 제품 정보 미입력 체크
+    const allCustomItems: CustomLabelItem[] = [
+      ...labelForms.filter(f => f.formatType === 'custom' && f.customLabelItems).map(f => f.customLabelItems!),
+      ...(paletteLabel.formatType === 'custom' && paletteLabel.customLabelItems ? [paletteLabel.customLabelItems] : []),
+    ];
+
+    if (allCustomItems.length > 0) {
+      const hasProductName = allCustomItems.some(item => item.productName);
+      const hasEnglishName = allCustomItems.some(item => item.englishName);
+      const hasClientProductCode = allCustomItems.some(item => item.clientProductCode);
+      const hasBarcode = allCustomItems.some(item => item.barcodeImage || item.barcodeNumber);
+
+      const getValueFromItems = (valueKey: keyof CustomLabelItem): string => {
+        for (const item of allCustomItems) {
+          const val = item[valueKey];
+          if (typeof val === 'string' && val.trim()) return val;
+        }
+        return '';
+      };
+
+      const hasMissingProductInfo =
+        (hasProductName && !getValueFromItems('productNameValue')) ||
+        (hasEnglishName && !getValueFromItems('englishNameValue')) ||
+        (hasClientProductCode && !getValueFromItems('clientProductCodeValue')) ||
+        (hasBarcode && !getValueFromItems('barcodeValue'));
+
+      if (hasMissingProductInfo) {
+        alert('라벨에 표기할 정보를 기입하십시오(\'제품 정보\' 정보 입력 필수)');
+        return;
+      }
     }
 
     nextStep();
@@ -103,6 +181,33 @@ export const Step2ContentInput: React.FC = () => {
           </svg>
         </button>
       </div>
+
+      {/* 라벨 항목 미선택 알림 모달 */}
+      {showLabelItemsModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-lg mx-4 shadow-xl">
+            <p className="text-gray-800 text-base mb-6">
+              라벨에 표기할 항목을 선택해주십시오(라벨 항목 선택에서 체크 필수)
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowLabelItemsModal(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 text-sm font-medium"
+              >
+                확인
+              </button>
+              <button
+                type="button"
+                onClick={handleSetDefaultLabelItems}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+              >
+                기본값 설정(제품명,수량,관리번호,사용기한)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
