@@ -117,6 +117,26 @@ const PDF_STYLES = `
     border: 1px solid #e5e7eb;
     border-radius: 4px;
   }
+  /* 페이지 나눔 방지 - 카드/테이블/이미지 단위 */
+  #preview-content .bg-gray-50,
+  #preview-content .bg-purple-50,
+  #preview-content .bg-green-50 {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #preview-content table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #preview-content img {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  /* 섹션 제목(h2)이 페이지 하단에 홀로 남지 않도록 */
+  #preview-content h2 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
 `;
 
 export const exportToPDF = async (_data: PackagingSpecificationData): Promise<void> => {
@@ -148,10 +168,13 @@ export const exportToPDF = async (_data: PackagingSpecificationData): Promise<vo
           clonedDoc.head.appendChild(styleEl);
         },
       },
-      jsPDF: { 
-        unit: 'mm', 
-        format: 'a4', 
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
         orientation: 'portrait'
+      },
+      pagebreak: {
+        mode: ['css'],
       },
     };
 
