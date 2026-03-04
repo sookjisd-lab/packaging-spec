@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useFormStore } from '../../store/formStore';
+import { generateHTML } from '@tiptap/html';
+import StarterKit from '@tiptap/starter-kit';
+import { ResizableImage } from '../../extensions/resizableImage';
 import {
   PRODUCT_CONFIG_LABELS,
   PRODUCT_CATEGORY_LABELS,
@@ -17,6 +20,26 @@ import {
   TUBE_MARKING_SIDE_LABELS,
 } from '../../types';
 import type { MarkingComposition, MarkingFormData } from '../../types';
+import type { JSONContent } from '@tiptap/react';
+
+const richContentExtensions = [
+  StarterKit.configure({
+    heading: false,
+    codeBlock: false,
+    blockquote: false,
+    horizontalRule: false,
+  }),
+  ResizableImage.configure({ inline: false, allowBase64: true }),
+];
+
+const renderRichContent = (richContent: JSONContent | undefined): string | null => {
+  if (!richContent) return null;
+  try {
+    return generateHTML(richContent, richContentExtensions);
+  } catch {
+    return null;
+  }
+};
 
 const getMarkingPreviewLines = (composition: MarkingComposition, isTubeEngraving: boolean): string[] => {
   if (isTubeEngraving) {
@@ -144,6 +167,15 @@ export const PreviewSection: React.FC = () => {
     additionalRequest,
   } = useFormStore();
 
+  const packagingMethodHtml = useMemo(
+    () => renderRichContent(packagingMethod.richContent),
+    [packagingMethod.richContent]
+  );
+  const additionalRequestHtml = useMemo(
+    () => renderRichContent(additionalRequest.richContent),
+    [additionalRequest.richContent]
+  );
+
   return (
     <div id="preview-content" className="bg-white p-8 rounded-lg shadow print:shadow-none">
       {/* 헤더 */}
@@ -202,20 +234,29 @@ export const PreviewSection: React.FC = () => {
         <h2 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300">
           2. 포장방법 / 순서
         </h2>
-        <div className="whitespace-pre-wrap text-sm text-gray-700 mb-4">
-          {packagingMethod.description || '(입력 없음)'}
-        </div>
-        {packagingMethod.images.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {packagingMethod.images.map((img, index) => (
-              <img 
-                key={index} 
-                src={img} 
-                alt={`포장방법 이미지 ${index + 1}`}
-                className="w-32 h-32 object-cover border border-gray-200 rounded"
-              />
-            ))}
-          </div>
+        {packagingMethodHtml ? (
+          <div
+            className="rich-content-preview text-sm text-gray-700"
+            dangerouslySetInnerHTML={{ __html: packagingMethodHtml }}
+          />
+        ) : (
+          <>
+            <div className="whitespace-pre-wrap text-sm text-gray-700 mb-4">
+              {packagingMethod.description || '(입력 없음)'}
+            </div>
+            {packagingMethod.images.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {packagingMethod.images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`포장방법 이미지 ${index + 1}`}
+                    className="w-32 h-32 object-cover border border-gray-200 rounded"
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </section>
 
@@ -399,20 +440,29 @@ export const PreviewSection: React.FC = () => {
         <h2 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300">
           6. 기타 요청사항
         </h2>
-        <div className="whitespace-pre-wrap text-sm text-gray-700 mb-4">
-          {additionalRequest.description || '(입력 없음)'}
-        </div>
-        {additionalRequest.images.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {additionalRequest.images.map((img, index) => (
-              <img 
-                key={index} 
-                src={img} 
-                alt={`참고 이미지 ${index + 1}`}
-                className="w-32 h-32 object-cover border border-gray-200 rounded"
-              />
-            ))}
-          </div>
+        {additionalRequestHtml ? (
+          <div
+            className="rich-content-preview text-sm text-gray-700"
+            dangerouslySetInnerHTML={{ __html: additionalRequestHtml }}
+          />
+        ) : (
+          <>
+            <div className="whitespace-pre-wrap text-sm text-gray-700 mb-4">
+              {additionalRequest.description || '(입력 없음)'}
+            </div>
+            {additionalRequest.images.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {additionalRequest.images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`참고 이미지 ${index + 1}`}
+                    className="w-32 h-32 object-cover border border-gray-200 rounded"
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>

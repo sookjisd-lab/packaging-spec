@@ -117,6 +117,34 @@ const PDF_STYLES = `
     border: 1px solid #e5e7eb;
     border-radius: 4px;
   }
+  #preview-content .rich-content-preview img {
+    max-width: 100%;
+    max-height: none;
+    height: auto;
+    margin: 8px 0;
+  }
+  #preview-content .rich-content-preview p {
+    margin: 0 0 0.5em 0;
+    color: #374151;
+    font-size: 14px;
+  }
+  #preview-content .rich-content-preview ul,
+  #preview-content .rich-content-preview ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+  #preview-content .rich-content-preview ul {
+    list-style-type: disc;
+  }
+  #preview-content .rich-content-preview ol {
+    list-style-type: decimal;
+  }
+  #preview-content .rich-content-preview li {
+    margin: 0.25em 0;
+  }
+  #preview-content .rich-content-preview strong {
+    font-weight: 700;
+  }
   /* 페이지 나눔 방지 - 카드/테이블/이미지 단위 */
   #preview-content .bg-gray-50,
   #preview-content .bg-purple-50,

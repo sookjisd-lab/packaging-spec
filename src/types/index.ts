@@ -1,3 +1,5 @@
+import type { JSONContent } from '@tiptap/react';
+
 // ============================================
 // 1. 유형 선택 관련 타입
 // ============================================
@@ -245,6 +247,7 @@ export interface LoadingMethodData {
 export interface PackagingMethodData {
   description: string;
   images: string[]; // base64 이미지 배열
+  richContent?: JSONContent;
 }
 
 // ============================================
@@ -255,6 +258,7 @@ export interface PackagingMethodData {
 export interface AdditionalRequestData {
   description: string;
   images: string[]; // base64 이미지 배열
+  richContent?: JSONContent;
 }
 
 // ============================================

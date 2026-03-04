@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { JSONContent } from '@tiptap/react';
 import type {
   CurrentStep,
   TypeSelectionData,
@@ -103,6 +104,7 @@ interface FormState {
   setPackagingMethod: (data: Partial<PackagingMethodData>) => void;
   addPackagingMethodImage: (image: string) => void;
   removePackagingMethodImage: (index: number) => void;
+  setPackagingMethodRichContent: (content: JSONContent) => void;
   
   generateMarkingForms: () => void;
   updateMarkingForm: (id: string, updates: Partial<MarkingFormData>) => void;
@@ -125,6 +127,7 @@ interface FormState {
   setAdditionalRequest: (data: Partial<AdditionalRequestData>) => void;
   addAdditionalRequestImage: (image: string) => void;
   removeAdditionalRequestImage: (index: number) => void;
+  setAdditionalRequestRichContent: (content: JSONContent) => void;
   
   // 고객사 관리번호 체계 액션
   setClientNumberScheme: (value: string) => void;
@@ -141,6 +144,49 @@ interface FormState {
 
 const generateId = (): string => {
   return Math.random().toString(36).substring(2, 9);
+};
+
+// richContent에서 텍스트 추출
+const extractPlainText = (content: JSONContent): string => {
+  if (!content) return '';
+  const lines: string[] = [];
+  const walkNodes = (nodes: JSONContent[] | undefined) => {
+    if (!nodes) return;
+    for (const node of nodes) {
+      if (node.type === 'text') {
+        lines.push(node.text || '');
+      } else if (node.type === 'paragraph' || node.type === 'heading') {
+        const texts: string[] = [];
+        node.content?.forEach(child => {
+          if (child.type === 'text') texts.push(child.text || '');
+        });
+        lines.push(texts.join(''));
+      } else if (node.type === 'image') {
+        // skip images
+      } else if (node.content) {
+        walkNodes(node.content);
+      }
+    }
+  };
+  walkNodes(content.content);
+  return lines.join('\n');
+};
+
+// richContent에서 이미지 src 추출
+const extractImages = (content: JSONContent): string[] => {
+  if (!content) return [];
+  const images: string[] = [];
+  const walk = (nodes: JSONContent[] | undefined) => {
+    if (!nodes) return;
+    for (const node of nodes) {
+      if (node.type === 'image' && node.attrs?.src) {
+        images.push(node.attrs.src as string);
+      }
+      if (node.content) walk(node.content);
+    }
+  };
+  walk(content.content);
+  return images;
 };
 
 // ============================================
@@ -268,7 +314,16 @@ export const useFormStore = create<FormState>()(
           images: state.packagingMethod.images.filter((_, i) => i !== index),
         },
       })),
-      
+
+      setPackagingMethodRichContent: (content) => set((state) => ({
+        packagingMethod: {
+          ...state.packagingMethod,
+          richContent: content,
+          description: extractPlainText(content),
+          images: extractImages(content),
+        },
+      })),
+
       generateMarkingForms: () => {
         const state = get();
         const { productConfig, productCategories, setComponents } = state.typeSelection;
@@ -562,7 +617,16 @@ export const useFormStore = create<FormState>()(
           images: state.additionalRequest.images.filter((_, i) => i !== index),
         },
       })),
-      
+
+      setAdditionalRequestRichContent: (content) => set((state) => ({
+        additionalRequest: {
+          ...state.additionalRequest,
+          richContent: content,
+          description: extractPlainText(content),
+          images: extractImages(content),
+        },
+      })),
+
       setClientNumberScheme: (value) => set({ clientNumberScheme: value }),
       
       // 전체 데이터 조회
