@@ -309,25 +309,30 @@ export const PreviewSection: React.FC = () => {
                 </tbody>
               </table>
               
-              {previewLines.length > 0 && (
-                <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-sm text-green-800 font-medium mb-2">착인 양식:</p>
-                  <div className="font-mono text-sm text-green-700 bg-white p-2 rounded border border-green-100">
-                    {previewLines.map((line, idx) => (
-                      <div key={idx}>{line}</div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {form.positionImage && (
-                <div className="mt-3">
-                  <p className="text-sm text-gray-600 mb-1">착인 위치 이미지:</p>
-                  <img 
-                    src={form.positionImage} 
-                    alt="착인 위치"
-                    className="w-32 h-32 object-cover border border-gray-200 rounded"
-                  />
+              {(previewLines.length > 0 || form.positionImage) && (
+                <div className="mt-3 flex gap-4 marking-layout">
+                  {previewLines.length > 0 && (
+                    <div className="flex-1 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm text-green-800 font-medium mb-2">착인 양식:</p>
+                      <div className="font-mono text-sm text-green-700 bg-white p-2 rounded border border-green-100">
+                        {previewLines.map((line, idx) => (
+                          <div key={idx}>{line}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {form.positionImage && (
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600 mb-1">착인 위치 이미지:</p>
+                      <img
+                        src={form.positionImage}
+                        alt="착인 위치"
+                        className="w-full max-h-64 object-contain border border-gray-200 rounded"
+                        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -465,6 +470,58 @@ export const PreviewSection: React.FC = () => {
           </>
         )}
       </section>
+
+      {/* 이미지 원본 모음 */}
+      {(() => {
+        const allImages: { label: string; src: string }[] = [];
+
+        // 포장방법 이미지
+        if (!packagingMethodHtml && packagingMethod.images.length > 0) {
+          packagingMethod.images.forEach((img, i) =>
+            allImages.push({ label: `포장방법 이미지 ${i + 1}`, src: img })
+          );
+        }
+
+        // 착인 위치 이미지
+        markingForms.forEach((form, fi) => {
+          if (form.positionImage) {
+            allImages.push({
+              label: `착인 위치 이미지 (${fi + 1}. ${getTargetTypeLabel(form.targetType)})`,
+              src: form.positionImage,
+            });
+          }
+        });
+
+        // 추가요청 이미지
+        if (!additionalRequestHtml && additionalRequest.images.length > 0) {
+          additionalRequest.images.forEach((img, i) =>
+            allImages.push({ label: `참고 이미지 ${i + 1}`, src: img })
+          );
+        }
+
+        if (allImages.length === 0) return null;
+
+        return (
+          <section className="mb-8 image-originals">
+            <h2 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-300">
+              첨부 이미지 원본
+            </h2>
+            <div className="space-y-6">
+              {allImages.map((item, index) => (
+                <div key={index} style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                  <p className="text-sm font-medium text-gray-600 mb-2">{item.label}</p>
+                  <img
+                    src={item.src}
+                    alt={item.label}
+                    className="image-original"
+                    style={{ maxWidth: '100%', height: 'auto', border: '1px solid #e5e7eb', borderRadius: '4px' }}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
     </div>
   );
 };

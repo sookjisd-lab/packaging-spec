@@ -111,11 +111,20 @@ const PDF_STYLES = `
     margin-bottom: 32px;
   }
   #preview-content img {
-    max-width: 128px;
-    max-height: 128px;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 256px;
+    object-fit: contain;
     border: 1px solid #e5e7eb;
     border-radius: 4px;
+  }
+  #preview-content .marking-layout {
+    display: flex;
+    gap: 16px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #preview-content .marking-layout > div {
+    flex: 1;
   }
   #preview-content .rich-content-preview img {
     max-width: 100%;
@@ -157,6 +166,16 @@ const PDF_STYLES = `
     break-inside: avoid;
   }
   #preview-content img {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #preview-content .image-original {
+    max-width: 100%;
+    max-height: none;
+    height: auto;
+    object-fit: contain;
+  }
+  #preview-content .image-originals > div > div > div {
     page-break-inside: avoid;
     break-inside: avoid;
   }
